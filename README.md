@@ -1,7 +1,5 @@
 # Simplify Scorm
-Scorm 1.2 Javascript API
-
-This is a Javascript API for SCORM 1.2 Run-Time Implementations.
+Simplify Scorm is a Javascript API for SCORM 1.2 Run-Time Implementations.
 
 The purpose of this software is to provide a quick, easy way to implement a SCORM 1.2 API (Run-Time) and integrate it with your backend API.
 SCORM 1.2 has defined the data model required for this integration here: http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
