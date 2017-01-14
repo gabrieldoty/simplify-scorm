@@ -22,7 +22,7 @@ This will handle all the scorm interactions, and record everything on the object
 window.API.cmi
 ```
 
-# Listeners
+## Listeners
 
 For convenience, I have also added hooks into all the SCORM API Signature functions:
 
@@ -49,7 +49,7 @@ window.API.on('LMSSetValue.cmi.core.student_id', function(CMIElement, value) {
 });
 ```
 
-# Saving Your CMI
+## Saving Your CMI
 Obviously, you will need to tie into the close, or complete event, or otherwise monitor your SCORM player to finalize the session, at that time, you can perform a JSON.stringify on the CMI object to retrieve a simplified data form for sending to your backend API,
 
 ```javascript
@@ -125,14 +125,14 @@ Example Output:
 }
 ```
 
-# Initial Values
+## Initial Values
 Lastly, if you are doing an initiail load of your data from the backend API, you will need to initialize your variables on the CMI object before launching your SCORM 1.2 player:
 
 <code>
   window.API.cmi.core.student_id = '123';
 </code>
 
-# Logging
+## Logging
 By default, the API is set to output all interactions in the Javascript console, if you want to change this level, you can change it by setting the the apiLogLevel:
 
 <code>
