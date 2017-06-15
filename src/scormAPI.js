@@ -16,7 +16,7 @@ function API() {
     var LOG_LEVEL_ERROR = 4;
 
     _self.cmi = new CMI(_self);
-    _self.lastErrorCode = null;
+    _self.lastErrorCode = 0;
     _self.currentState = STATE_NOT_INITIALIZED;
 
     _self.LMSInitialize = LMSInitialize;
