@@ -51,7 +51,7 @@ window.API.on('LMSSetValue.cmi.core.student_id', function(CMIElement, value) {
 Obviously, you will need to tie into the close, or complete event, or otherwise monitor your SCORM player to finalize the session, at that time, you can perform a JSON.stringify on the CMI object to retrieve a simplified data form for sending to your backend API,
 
 ```javascript
-  var simplifiedObject = JSON.parse(JSON.stringify(window.API.cmi));
+  var simplifiedObject = window.API.cmi.toJSON();
 ```
 
 Example Output: 
