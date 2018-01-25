@@ -131,10 +131,10 @@ Lastly, if you are doing an initiail load of your data from the backend API, you
 </code>
 
 ## Logging
-By default, the API is set to output all interactions in the Javascript console, if you want to change this level, you can change it by setting the the apiLogLevel:
+By default, the API is set to output nothing in the Javascript console, if you want to change this level, you can change it by setting the the apiLogLevel to the appropriate level:
 
 <code>
-  window.API.apiLogLevel = 4 //Error only
+  window.API.apiLogLevel = 5 //no logging
 </code>
 
 Hopefully this makes your life easier, and lets you get up and running much faster in your SCORM developing!!!
