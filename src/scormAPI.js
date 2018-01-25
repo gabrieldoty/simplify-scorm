@@ -14,6 +14,7 @@ function API() {
     var LOG_LEVEL_INFO = 2;
     var LOG_LEVEL_WARNING = 3;
     var LOG_LEVEL_ERROR = 4;
+    var LOG_LEVEL_NONE = 5;
 
     _self.cmi = new CMI(_self);
     _self.lastErrorCode = 0;
@@ -30,7 +31,7 @@ function API() {
 
     //Diagnostic functions
 
-    _self.apiLogLevel = LOG_LEVEL_DEBUG;
+    _self.apiLogLevel = LOG_LEVEL_NONE;
     _self.apiLog = apiLog;
     _self.on = onListener;
     _self.listenerArray = [];
