@@ -1,26 +1,46 @@
 (function() {
-    window.API = new API();
+    /**
+     * Based on the Scorm 1.2 definitions from https://scorm.com
+     *
+     * Scorm 1.2 Overview for Developers: https://scorm.com/scorm-explained/technical-scorm/scorm-12-overview-for-developers/
+     * Run-Time Reference: http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
+     */
+    window.API = new API_12();
 
-    function API() {
+    var SCORM_TRUE = 'true';
+    var SCORM_FALSE = 'false';
+
+    var STATE_NOT_INITIALIZED = 0;
+    var STATE_INITIALIZED = 1;
+    var STATE_TERMINATED = 2;
+
+    var LOG_LEVEL_DEBUG = 1;
+    var LOG_LEVEL_INFO = 2;
+    var LOG_LEVEL_WARNING = 3;
+    var LOG_LEVEL_ERROR = 4;
+    var LOG_LEVEL_NONE = 5;
+
+    function BaseAPI() {
         var _self = this;
 
-        var SCORM_TRUE = 'true';
-        var SCORM_FALSE = 'false';
-
-        var STATE_NOT_INITIALIZED = 0;
-        var STATE_INITIALIZED = 1;
-        var STATE_COMPLETE = 2;
-
-        var LOG_LEVEL_DEBUG = 1;
-        var LOG_LEVEL_INFO = 2;
-        var LOG_LEVEL_WARNING = 3;
-        var LOG_LEVEL_ERROR = 4;
-        var LOG_LEVEL_NONE = 5;
-
-        _self.cmi = new CMI(_self);
-        _self.lastErrorCode = 0;
+        // Internal State
         _self.currentState = STATE_NOT_INITIALIZED;
+        _self.lastErrorCode = 0;
 
+        // Utility Functions
+        _self.apiLogLevel = LOG_LEVEL_NONE;
+        _self.apiLog = apiLog;
+        _self.on = onListener;
+        _self.listenerArray = [];
+        _self.throwSCORMError = throwSCORMError;
+    }
+
+    function API_12() {
+        var _self = this;
+
+        BaseAPI.call(_self);
+
+        // API Signature
         _self.LMSInitialize = LMSInitialize;
         _self.LMSFinish = LMSFinish;
         _self.LMSGetValue = LMSGetValue;
@@ -30,46 +50,43 @@
         _self.LMSGetErrorString = LMSGetErrorString;
         _self.LMSGetDiagnostic = LMSGetDiagnostic;
 
-        //Diagnostic functions
-
-        _self.apiLogLevel = LOG_LEVEL_NONE;
-        _self.apiLog = apiLog;
-        _self.on = onListener;
-        _self.listenerArray = [];
-        _self.throwSCORMError = throwSCORMError;
+        // Data Model
+        _self.cmi = new CMI_12(_self);
 
         /**
          * @returns {string} bool
          */
         function LMSInitialize() {
-            var return_value = SCORM_FALSE;
+            var returnValue = SCORM_FALSE;
 
             if (_self.currentState === STATE_INITIALIZED) {
                 throwSCORMError(_self, 101, 'LMS was already initialized!');
             }
             else {
                 _self.currentState = STATE_INITIALIZED;
-                return_value = SCORM_TRUE;
+                returnValue = SCORM_TRUE;
+                processListeners('LMSInitialize');
             }
 
-            processListeners('LMSInitialize');
+            _self.apiLog('LMSInitialize', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
 
-            _self.apiLog('LMSInitialize', null, 'returned: ' + return_value, LOG_LEVEL_INFO);
-
-            return return_value;
+            return returnValue;
         }
 
         /**
          * @returns {string} bool
          */
         function LMSFinish() {
-            checkState();
+            var returnValue = SCORM_FALSE;
 
-            _self.apiLog('LMSFinish', '', null, LOG_LEVEL_INFO);
+            if checkState() {
+                returnValue = SCORM_TRUE;
+                processListeners('LMSFinish');
+            }
 
-            processListeners('LMSFinish');
+            _self.apiLog('LMSFinish', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
 
-            return SCORM_TRUE;
+            return returnValue;
         }
 
         /**
@@ -77,15 +94,16 @@
          * @returns {string}
          */
         function LMSGetValue(CMIElement) {
-            checkState();
+            var returnValue = '';
 
-            var elementValue = getCMIValue(CMIElement);
+            if checkState() {
+                returnValue = getCMIValue(CMIElement);
+                processListeners('LMSGetValue', CMIElement);
+            }
 
-            _self.apiLog('LMSGetValue', CMIElement, ': returned: ' + elementValue, LOG_LEVEL_INFO);
+            _self.apiLog('LMSGetValue', CMIElement, ': returned: ' + returnValue, LOG_LEVEL_INFO);
 
-            processListeners('LMSGetValue', CMIElement);
-
-            return elementValue;
+            return returnValue;
         }
 
         /**
@@ -94,43 +112,49 @@
          * @returns {string}
          */
         function LMSSetValue(CMIElement, value) {
-            checkState();
+            var returnValue = '';
 
-            var setResult = setCMIValue(CMIElement, value);
+            if checkState() {
+                setCMIValue(CMIElement, value);
+                processListeners('LMSSetValue', CMIElement, value);
+            }
 
-            _self.apiLog('LMSSetValue', CMIElement, ': ' + value + ': result: ' + setResult, LOG_LEVEL_INFO);
+            _self.apiLog('LMSSetValue', CMIElement, ': ' + value + ': result: ' + returnValue, LOG_LEVEL_INFO);
 
-            processListeners('LMSSetValue', CMIElement, value);
-
-            return setResult;
+            return returnValue;
         }
 
         /**
          * Orders LMS to store all content parameters
+         *
+         * @returns {string} bool
          */
         function LMSCommit() {
-            checkState();
+            var returnValue = SCORM_FALSE;
 
-            processListeners('LMSCommit');
+            if checkState() {
+                returnValue = SCORM_TRUE;
+                processListeners('LMSCommit');
+            }
 
-            _self.apiLog('LMSCommit', '', null, LOG_LEVEL_INFO);
+            _self.apiLog('LMSCommit', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
+
+            return returnValue;
         }
 
         /**
          * Returns last error code
          *
-         * @returns {string|null}
+         * @returns {string}
          */
         function LMSGetLastError() {
-            checkState();
-
-            if (_self.lastErrorCode !== null) {
-                _self.apiLog('LMSGetLastError', null, 'returned: ' + _self.lastErrorCode, LOG_LEVEL_INFO);
-            }
+            var returnValue = _self.lastErrorCode;
 
             processListeners('LMSGetLastError');
 
-            return _self.lastErrorCode;
+            _self.apiLog('LMSGetLastError', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
+
+            return returnValue;
         }
 
         /**
@@ -140,180 +164,35 @@
          * @returns {string}
          */
         function LMSGetErrorString(CMIErrorCode) {
-            checkState();
+            var returnValue = '';
 
             if (CMIErrorCode !== null && CMIErrorCode !== '') {
-                var errorString = getLmsErrorMessageDetails(CMIErrorCode);
-
-                _self.apiLog('LMSGetErrorString', null, 'returned: ' + errorString, LOG_LEVEL_INFO);
-
-                return errorString;
+                returnValue = getLmsErrorMessageDetails(CMIErrorCode);
+                processListeners('LMSGetErrorString');
             }
 
-            processListeners('LMSGetErrorString');
+            _self.apiLog('LMSGetErrorString', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
 
-            return '';
+            return returnValue;
         }
 
         /**
-         * Returns an comprehensive description of the errorNumber error.
+         * Returns a comprehensive description of the errorNumber error.
          *
          * @param CMIErrorCode
          * @returns {string}
          */
         function LMSGetDiagnostic(CMIErrorCode) {
-            checkState();
+            var returnValue = '';
 
             if (CMIErrorCode !== null && CMIErrorCode !== '') {
-                var errorString = getLmsErrorMessageDetails(CMIErrorCode, true);
-
-                _self.apiLog('LMSGetDiagnostic', null, 'returned: ' + _self.lastErrorCode, LOG_LEVEL_INFO);
-
-                return errorString;
+                returnValue = getLmsErrorMessageDetails(CMIErrorCode, true);
+                processListeners('LMSGetDiagnostic');
             }
 
-            processListeners('LMSGetDiagnostic');
+            _self.apiLog('LMSGetDiagnostic', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
 
-            return '';
-        }
-
-        /**
-         * Logging for all SCORM actions
-         *
-         * @param functionName
-         * @param CMIElement
-         * @param logMessage
-         * @param messageLevel
-         */
-        function apiLog(functionName, CMIElement, logMessage, messageLevel) {
-            logMessage = formatMessage(functionName, CMIElement, logMessage);
-
-            if (messageLevel >= _self.apiLogLevel) {
-                switch (messageLevel) {
-                    case LOG_LEVEL_ERROR:
-                        console.error(logMessage);
-                        break;
-                    case LOG_LEVEL_WARNING:
-                        console.warn(logMessage);
-                        break;
-                    case LOG_LEVEL_INFO:
-                        console.info(logMessage);
-                        break;
-                }
-            }
-        }
-
-        /**
-         * Formats the scorm messages for easy reading
-         *
-         * @param functionName
-         * @param CMIElement
-         * @param message
-         * @returns {string}
-         */
-        function formatMessage(functionName, CMIElement, message) {
-            var baseLength = 20;
-            var messageString = '';
-
-            messageString += functionName;
-
-            var fillChars = baseLength - messageString.length;
-
-            for (var i = 0; i < fillChars; i++) {
-                messageString += ' ';
-            }
-
-            messageString += ': ';
-
-            if (CMIElement) {
-                var CMIElementBaseLength = 70;
-
-                messageString += CMIElement;
-
-                fillChars = CMIElementBaseLength - messageString.length;
-
-                for (var j = 0; j < fillChars; j++) {
-                    messageString += ' ';
-                }
-            }
-
-            if (message) {
-                messageString += message;
-            }
-
-            return messageString;
-        }
-
-        /**
-         * Provides a mechanism for attaching to a specific scorm event
-         *
-         * @param listenerString
-         * @param callback
-         */
-        function onListener(listenerString, callback) {
-            if (!callback) {
-                return;
-            }
-
-            var listenerSplit = listenerString.split('.');
-
-            if (listenerSplit.length === 0) {
-                return;
-            }
-
-            var functionName = listenerSplit[0];
-            var CMIElement = null;
-
-            if (listenerSplit.length > 1) {
-                CMIElement = listenerString.replace(functionName + '.', '');
-            }
-
-            _self.listenerArray.push(
-                {
-                    functionName: functionName,
-                    CMIElement: CMIElement,
-                    callback: callback
-                }
-            )
-        }
-
-        /**
-         * Processes any "on" listeners that have been created
-         *
-         * @param functionName
-         * @param CMIElement
-         * @param value
-         */
-        function processListeners(functionName, CMIElement, value) {
-            for (var i = 0; i < _self.listenerArray.length; i++) {
-                var listener = _self.listenerArray[i];
-
-                if (listener.functionName === functionName) {
-                    if (listener.CMIElement && listener.CMIElement === CMIElement) {
-                        listener.callback(CMIElement, value);
-                    }
-                    else {
-                        listener.callback(CMIElement, value);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Throws a scorm error
-         *
-         * @param API
-         * @param errorNumber
-         * @param message
-         */
-        function throwSCORMError(API, errorNumber, message) {
-            if (!message) {
-                message = getLmsErrorMessageDetails(errorNumber);
-            }
-
-            _self.apiLog('throwSCORMError', null, errorNumber + ': ' + message, LOG_LEVEL_ERROR);
-
-            API.lastErrorCode = String(errorNumber);
+            return returnValue;
         }
 
         /**
@@ -322,7 +201,10 @@
         function checkState() {
             if (_self.currentState !== STATE_INITIALIZED) {
                 throwSCORMError(_self, 301);
+                return false;
             }
+
+            return true;
         }
 
         /**
@@ -357,7 +239,7 @@
                     if (refObject.hasOwnProperty('childArray')) {
                         var index = parseInt(structure[i + 1]);
 
-                        //SCO is trying to set an item on an array
+                        // SCO is trying to set an item on an array
                         if (!isNaN(index)) {
                             var item = refObject.childArray[index];
 
@@ -368,16 +250,16 @@
                                 var newChild;
 
                                 if (CMIElement.indexOf('cmi.objectives') > -1) {
-                                    newChild = new ObjectivesObject(_self);
+                                    newChild = new CMI_12_ObjectivesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('.correct_responses') > -1) {
-                                    newChild = new InteractionsCorrectResponsesObject(_self);
+                                    newChild = new CMI_12_InteractionsCorrectResponsesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('.objectives') > -1) {
-                                    newChild = new InteractionsObjectivesObject(_self);
+                                    newChild = new CMI_12_InteractionsObjectivesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('cmi.interactions') > -1) {
-                                    newChild = new InteractionsObject(_self);
+                                    newChild = new CMI_12_InteractionsObject(_self);
                                 }
 
                                 if (!newChild) {
@@ -390,7 +272,7 @@
                                 }
                             }
 
-                            //Have to update i value to skip the array position
+                            // Have to update i value to skip the array position
                             i++;
                         }
                     }
@@ -452,7 +334,7 @@
             var basicMessage = '';
             var detailMessage = '';
 
-            //Set error number to string since inconsistent from modules if string or number
+            // Set error number to string since inconsistent from modules if string or number
             errorNumber = String(errorNumber);
 
             switch (errorNumber) {
@@ -528,11 +410,9 @@
     }
 
     /**
-     * Cmi data model
-     *
-     * based on the Scorm CMI 1.2 definition at http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
+     * Scorm 1.2 Cmi data model
      */
-    function CMI(API) {
+    function CMI_12(API) {
         return {
             jsonString: false,
             _suspend_data: '',
@@ -803,7 +683,7 @@
         };
     }
 
-    function InteractionsObject(API) {
+    function CMI_12_InteractionsObject(API) {
         return {
             jsonString: false,
             _id: '',
@@ -917,7 +797,7 @@
         }
     }
 
-    function ObjectivesObject(API) {
+    function CMI_12_ObjectivesObject(API) {
         return {
             _id: '',
             get id() {
@@ -970,7 +850,7 @@
         }
     }
 
-    function InteractionsObjectivesObject(API) {
+    function CMI_12_InteractionsObjectivesObject(API) {
         return {
             jsonString: false,
             _id: '',
@@ -990,7 +870,7 @@
         };
     }
 
-    function InteractionsCorrectResponsesObject(API) {
+    function CMI_12_InteractionsCorrectResponsesObject(API) {
         return {
             jsonString: false,
             _pattern: '',
@@ -1010,6 +890,78 @@
         };
     }
 
+    /**
+     * Logging for all SCORM actions
+     *
+     * @param functionName
+     * @param CMIElement
+     * @param logMessage
+     * @param messageLevel
+     */
+    function apiLog(functionName, CMIElement, logMessage, messageLevel) {
+        logMessage = formatMessage(functionName, CMIElement, logMessage);
+
+        if (messageLevel >= _self.apiLogLevel) {
+            switch (messageLevel) {
+                case LOG_LEVEL_ERROR:
+                    console.error(logMessage);
+                    break;
+                case LOG_LEVEL_WARNING:
+                    console.warn(logMessage);
+                    break;
+                case LOG_LEVEL_INFO:
+                    console.info(logMessage);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Formats the scorm messages for easy reading
+     *
+     * @param functionName
+     * @param CMIElement
+     * @param message
+     * @returns {string}
+     */
+    function formatMessage(functionName, CMIElement, message) {
+        var baseLength = 20;
+        var messageString = '';
+
+        messageString += functionName;
+
+        var fillChars = baseLength - messageString.length;
+
+        for (var i = 0; i < fillChars; i++) {
+            messageString += ' ';
+        }
+
+        messageString += ': ';
+
+        if (CMIElement) {
+            var CMIElementBaseLength = 70;
+
+            messageString += CMIElement;
+
+            fillChars = CMIElementBaseLength - messageString.length;
+
+            for (var j = 0; j < fillChars; j++) {
+                messageString += ' ';
+            }
+        }
+
+        if (message) {
+            messageString += message;
+        }
+
+        return messageString;
+    }
+
+    /**
+     * Converts data structures to JSON
+     *
+     * @returns {json}
+     */
     function jsonFormatter() {
         this.jsonString = true;
         delete this.toJSON;
@@ -1032,5 +984,77 @@
         delete returnObject.jsonString;
 
         return returnObject;
+    }
+
+    /**
+     * Provides a mechanism for attaching to a specific scorm event
+     *
+     * @param listenerString
+     * @param callback
+     */
+    function onListener(listenerString, callback) {
+        if (!callback) {
+            return;
+        }
+
+        var listenerSplit = listenerString.split('.');
+
+        if (listenerSplit.length === 0) {
+            return;
+        }
+
+        var functionName = listenerSplit[0];
+        var CMIElement = null;
+
+        if (listenerSplit.length > 1) {
+            CMIElement = listenerString.replace(functionName + '.', '');
+        }
+
+        _self.listenerArray.push(
+            {
+                functionName: functionName,
+                CMIElement: CMIElement,
+                callback: callback
+            }
+        )
+    }
+
+    /**
+     * Processes any 'on' listeners that have been created
+     *
+     * @param functionName
+     * @param CMIElement
+     * @param value
+     */
+    function processListeners(functionName, CMIElement, value) {
+        for (var i = 0; i < _self.listenerArray.length; i++) {
+            var listener = _self.listenerArray[i];
+
+            if (listener.functionName === functionName) {
+                if (listener.CMIElement && listener.CMIElement === CMIElement) {
+                    listener.callback(CMIElement, value);
+                }
+                else {
+                    listener.callback(CMIElement, value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Throws a scorm error
+     *
+     * @param API
+     * @param errorNumber
+     * @param message
+     */
+    function throwSCORMError(API, errorNumber, message) {
+        if (!message) {
+            message = getLmsErrorMessageDetails(errorNumber);
+        }
+
+        _self.apiLog('throwSCORMError', null, errorNumber + ': ' + message, LOG_LEVEL_ERROR);
+
+        API.lastErrorCode = String(errorNumber);
     }
 })();
