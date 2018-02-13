@@ -32,6 +32,7 @@
         _self.apiLog = apiLog;
         _self.on = onListener;
         _self.listenerArray = [];
+        _self.processListeners = processListeners;
         _self.throwSCORMError = throwSCORMError;
     }
 
@@ -53,6 +54,9 @@
         // Data Model
         _self.cmi = new CMI_12(_self);
 
+        // Utility Functions
+        _self.checkState = checkState;
+
         /**
          * @returns {string} bool
          */
@@ -60,12 +64,12 @@
             var returnValue = SCORM_FALSE;
 
             if (_self.currentState === STATE_INITIALIZED) {
-                throwSCORMError(_self, 101, 'LMS was already initialized!');
+                _self.throwSCORMError(101, 'LMS was already initialized!');
             }
             else {
                 _self.currentState = STATE_INITIALIZED;
                 returnValue = SCORM_TRUE;
-                processListeners('LMSInitialize');
+                _self.processListeners('LMSInitialize');
             }
 
             _self.apiLog('LMSInitialize', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -79,9 +83,9 @@
         function LMSFinish() {
             var returnValue = SCORM_FALSE;
 
-            if checkState() {
+            if (_self.checkState()) {
                 returnValue = SCORM_TRUE;
-                processListeners('LMSFinish');
+                _self.processListeners('LMSFinish');
             }
 
             _self.apiLog('LMSFinish', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -96,9 +100,9 @@
         function LMSGetValue(CMIElement) {
             var returnValue = '';
 
-            if checkState() {
+            if (_self.checkState()) {
                 returnValue = getCMIValue(CMIElement);
-                processListeners('LMSGetValue', CMIElement);
+                _self.processListeners('LMSGetValue', CMIElement);
             }
 
             _self.apiLog('LMSGetValue', CMIElement, ': returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -114,9 +118,9 @@
         function LMSSetValue(CMIElement, value) {
             var returnValue = '';
 
-            if checkState() {
+            if (_self.checkState()) {
                 setCMIValue(CMIElement, value);
-                processListeners('LMSSetValue', CMIElement, value);
+                _self.processListeners('LMSSetValue', CMIElement, value);
             }
 
             _self.apiLog('LMSSetValue', CMIElement, ': ' + value + ': result: ' + returnValue, LOG_LEVEL_INFO);
@@ -132,9 +136,9 @@
         function LMSCommit() {
             var returnValue = SCORM_FALSE;
 
-            if checkState() {
+            if (_self.checkState()) {
                 returnValue = SCORM_TRUE;
-                processListeners('LMSCommit');
+                _self.processListeners('LMSCommit');
             }
 
             _self.apiLog('LMSCommit', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -150,7 +154,7 @@
         function LMSGetLastError() {
             var returnValue = _self.lastErrorCode;
 
-            processListeners('LMSGetLastError');
+            _self.processListeners('LMSGetLastError');
 
             _self.apiLog('LMSGetLastError', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
 
@@ -168,7 +172,7 @@
 
             if (CMIErrorCode !== null && CMIErrorCode !== '') {
                 returnValue = getLmsErrorMessageDetails(CMIErrorCode);
-                processListeners('LMSGetErrorString');
+                _self.processListeners('LMSGetErrorString');
             }
 
             _self.apiLog('LMSGetErrorString', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -187,7 +191,7 @@
 
             if (CMIErrorCode !== null && CMIErrorCode !== '') {
                 returnValue = getLmsErrorMessageDetails(CMIErrorCode, true);
-                processListeners('LMSGetDiagnostic');
+                _self.processListeners('LMSGetDiagnostic');
             }
 
             _self.apiLog('LMSGetDiagnostic', null, 'returned: ' + returnValue, LOG_LEVEL_INFO);
@@ -199,8 +203,8 @@
          * Checks the LMS state and ensures it has been initialized
          */
         function checkState() {
-            if (_self.currentState !== STATE_INITIALIZED) {
-                throwSCORMError(_self, 301);
+            if (this.currentState !== STATE_INITIALIZED) {
+                this.throwSCORMError(301);
                 return false;
             }
 
@@ -226,7 +230,7 @@
             for (var i = 0; i < structure.length; i++) {
                 if (i === structure.length - 1) {
                     if (!refObject.hasOwnProperty(structure[i])) {
-                        throwSCORMError(_self, 101, 'setCMIValue did not find an element for: ' + CMIElement);
+                        _self.throwSCORMError(101, 'setCMIValue did not find an element for: ' + CMIElement);
                     }
                     else {
                         refObject[structure[i]] = value;
@@ -263,7 +267,7 @@
                                 }
 
                                 if (!newChild) {
-                                    throwSCORMError(_self, 101, 'Cannot create new sub entity: ' + CMIElement);
+                                    _self.throwSCORMError(101, 'Cannot create new sub entity: ' + CMIElement);
                                 }
                                 else {
                                     refObject.childArray.push(newChild);
@@ -306,7 +310,7 @@
 
                 if (i === structure.length - 1) {
                     if (!refObject.hasOwnProperty(structure[i])) {
-                        throwSCORMError(_self, 101, 'getCMIValue did not find a value for: ' + CMIElement);
+                        _self.throwSCORMError(101, 'getCMIValue did not find a value for: ' + CMIElement);
                     }
                 }
 
@@ -315,10 +319,10 @@
 
             if (refObject === null || refObject === undefined) {
                 if (lastProperty === '_children') {
-                    throwSCORMError(_self, 202);
+                    _self.throwSCORMError(202);
                 }
                 else if (lastProperty === '_count') {
-                    throwSCORMError(_self, 203);
+                    _self.throwSCORMError(203);
                 }
                 return '';
             }
@@ -430,7 +434,7 @@
                 return this._launch_data;
             },
             set launch_data(launch_data) {
-                API.throwSCORMError(API, 403);
+                API.throwSCORMError(403);
             },
             get comments() {
                 return this._comments;
@@ -442,7 +446,7 @@
                 return this._comments_from_lms;
             },
             set comments_from_lms(comments_from_lms) {
-                API.throwSCORMError(API, 403);
+                API.throwSCORMError(403);
             },
             core: {
                 jsonString: false,
@@ -463,20 +467,20 @@
                     return this.__children;
                 },
                 set _children(__children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
 
                 get student_id() {
                     return this._student_id;
                 },
                 set student_id(student_id) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get student_name() {
                     return this._student_name;
                 },
                 set student_name(student_name) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get lesson_location() {
                     return this._lesson_location;
@@ -488,7 +492,7 @@
                     return this._credit;
                 },
                 set credit(credit) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get lesson_status() {
                     return this._lesson_status;
@@ -500,23 +504,23 @@
                     return this._entry;
                 },
                 set entry(entry) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get total_time() {
                     return this._total_time;
                 },
                 set total_time(total_time) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get lesson_mode() {
                     return this._lesson_mode;
                 },
                 set lesson_mode(lesson_mode) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get exit() {
                     if (!this.jsonString) {
-                        API.throwSCORMError(API, 404);
+                        API.throwSCORMError(404);
                     }
                     else {
                         return this._exit;
@@ -527,7 +531,7 @@
                 },
                 get session_time() {
                     if (!this.jsonString) {
-                        API.throwSCORMError(API, 404);
+                        API.throwSCORMError(404);
                     }
                     else {
                         return this._session_time;
@@ -547,7 +551,7 @@
                         return this.__children;
                     },
                     set _children(_children) {
-                        API.throwSCORMError(API, 402);
+                        API.throwSCORMError(402);
                     },
                     get raw() {
                         return this._raw;
@@ -579,13 +583,13 @@
                     return this.__children;
                 },
                 set _children(_children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 get _count() {
                     return this.childArray.length;
                 },
                 set _count(count) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 toJSON: jsonFormatter
             },
@@ -599,25 +603,25 @@
                     return this.__children;
                 },
                 set _children(_children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 get mastery_score() {
                     return this._mastery_score;
                 },
                 set mastery_score(mastery_score) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get max_time_allowed() {
                     return this._max_time_allowed;
                 },
                 set max_time_allowed(max_time_allowed) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 get time_limit_action() {
                     return this._time_limit_action;
                 },
                 set time_limit_action(time_limit_action) {
-                    API.throwSCORMError(API, 403);
+                    API.throwSCORMError(403);
                 },
                 toJSON: jsonFormatter
             },
@@ -627,7 +631,7 @@
                     return this.__children;
                 },
                 set _children(_children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
 
                 _audio: '',
@@ -669,13 +673,13 @@
                     return this.__children;
                 },
                 set _children(_children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 get _count() {
                     return this.childArray.length;
                 },
                 set _count(_count) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 toJSON: jsonFormatter
             },
@@ -696,7 +700,7 @@
 
             get id() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._id;
@@ -707,7 +711,7 @@
             },
             get time() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._time;
@@ -718,7 +722,7 @@
             },
             get type() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._type;
@@ -729,7 +733,7 @@
             },
             get weighting() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._weighting;
@@ -740,7 +744,7 @@
             },
             get student_response() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._student_response;
@@ -751,7 +755,7 @@
             },
             get result() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._result;
@@ -762,7 +766,7 @@
             },
             get latency() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._latency;
@@ -778,7 +782,7 @@
                     return this.childArray.length;
                 },
                 set _count(_count) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 toJSON: jsonFormatter
             },
@@ -789,7 +793,7 @@
                     return this.childArray.length;
                 },
                 set _count(_count) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
                 toJSON: jsonFormatter
             },
@@ -812,7 +816,7 @@
                     return this.__children;
                 },
                 set _children(children) {
-                    API.throwSCORMError(API, 402);
+                    API.throwSCORMError(402);
                 },
 
                 _raw: '',
@@ -857,7 +861,7 @@
 
             get id() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._id;
@@ -877,7 +881,7 @@
 
             get pattern() {
                 if (!this.jsonString) {
-                    API.throwSCORMError(API, 404);
+                    API.throwSCORMError(404);
                 }
                 else {
                     return this._pattern;
@@ -901,7 +905,7 @@
     function apiLog(functionName, CMIElement, logMessage, messageLevel) {
         logMessage = formatMessage(functionName, CMIElement, logMessage);
 
-        if (messageLevel >= _self.apiLogLevel) {
+        if (messageLevel >= this.apiLogLevel) {
             switch (messageLevel) {
                 case LOG_LEVEL_ERROR:
                     console.error(logMessage);
@@ -1010,7 +1014,7 @@
             CMIElement = listenerString.replace(functionName + '.', '');
         }
 
-        _self.listenerArray.push(
+        this.listenerArray.push(
             {
                 functionName: functionName,
                 CMIElement: CMIElement,
@@ -1027,8 +1031,8 @@
      * @param value
      */
     function processListeners(functionName, CMIElement, value) {
-        for (var i = 0; i < _self.listenerArray.length; i++) {
-            var listener = _self.listenerArray[i];
+        for (var i = 0; i < this.listenerArray.length; i++) {
+            var listener = this.listenerArray[i];
 
             if (listener.functionName === functionName) {
                 if (listener.CMIElement && listener.CMIElement === CMIElement) {
@@ -1044,17 +1048,16 @@
     /**
      * Throws a scorm error
      *
-     * @param API
      * @param errorNumber
      * @param message
      */
-    function throwSCORMError(API, errorNumber, message) {
+    function throwSCORMError(errorNumber, message) {
         if (!message) {
             message = getLmsErrorMessageDetails(errorNumber);
         }
 
-        _self.apiLog('throwSCORMError', null, errorNumber + ': ' + message, LOG_LEVEL_ERROR);
+        this.apiLog('throwSCORMError', null, errorNumber + ': ' + message, LOG_LEVEL_ERROR);
 
-        API.lastErrorCode = String(errorNumber);
+        this.lastErrorCode = String(errorNumber);
     }
 })();
