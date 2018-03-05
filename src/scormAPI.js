@@ -1,7 +1,7 @@
 (function() {
-    window.API = new API();
+    window.API = new ScormAPI();
 
-    function API() {
+    function ScormAPI() {
         var _self = this;
 
         var SCORM_TRUE = 'true';
@@ -32,7 +32,7 @@
 
         //Diagnostic functions
 
-        _self.apiLogLevel = LOG_LEVEL_NONE;
+        _self.apiLogLevel = LOG_LEVEL_ERROR;
         _self.apiLog = apiLog;
         _self.on = onListener;
         _self.listenerArray = [];
@@ -526,13 +526,15 @@
 
         return _self;
     }
-
+    
     /**
      * Cmi data model
      *
      * based on the Scorm CMI 1.2 definition at http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
      */
     function CMI(API) {
+        var STATE_INITIALIZED = 1;
+
         return {
             jsonString: false,
             _suspend_data: '',
@@ -550,7 +552,12 @@
                 return this._launch_data;
             },
             set launch_data(launch_data) {
-                API.throwSCORMError(API, 403);
+                if(API.currentState !== STATE_INITIALIZED) {
+                    this._launch_data = launch_data;
+                }
+                else {
+                    API.throwSCORMError(API, 403);
+                }
             },
             get comments() {
                 return this._comments;
@@ -562,7 +569,12 @@
                 return this._comments_from_lms;
             },
             set comments_from_lms(comments_from_lms) {
-                API.throwSCORMError(API, 403);
+                if(API.currentState !== STATE_INITIALIZED) {
+                    this._comments_from_lms = comments_from_lms;
+                }
+                else {
+                    API.throwSCORMError(API, 403);
+                }
             },
             core: {
                 jsonString: false,
@@ -590,13 +602,25 @@
                     return this._student_id;
                 },
                 set student_id(student_id) {
-                    API.throwSCORMError(API, 403);
+                    debugger;
+
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._student_id = student_id;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get student_name() {
                     return this._student_name;
                 },
                 set student_name(student_name) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._student_name = student_name;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get lesson_location() {
                     return this._lesson_location;
@@ -608,7 +632,12 @@
                     return this._credit;
                 },
                 set credit(credit) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._credit = credit;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get lesson_status() {
                     return this._lesson_status;
@@ -620,19 +649,34 @@
                     return this._entry;
                 },
                 set entry(entry) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._entry = entry;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get total_time() {
                     return this._total_time;
                 },
                 set total_time(total_time) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        API.throwSCORMError(API, 403);
+                    }
+                    else {
+                        this._total_time = total_time;
+                    }
                 },
                 get lesson_mode() {
                     return this._lesson_mode;
                 },
                 set lesson_mode(lesson_mode) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._lesson_mode = lesson_mode;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get exit() {
                     if (!this.jsonString) {
@@ -725,19 +769,34 @@
                     return this._mastery_score;
                 },
                 set mastery_score(mastery_score) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._mastery_score = mastery_score;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get max_time_allowed() {
                     return this._max_time_allowed;
                 },
                 set max_time_allowed(max_time_allowed) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._max_time_allowed = max_time_allowed;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 get time_limit_action() {
                     return this._time_limit_action;
                 },
                 set time_limit_action(time_limit_action) {
-                    API.throwSCORMError(API, 403);
+                    if(API.currentState !== STATE_INITIALIZED) {
+                        this._time_limit_action = time_limit_action;
+                    }
+                    else {
+                        API.throwSCORMError(API, 403);
+                    }
                 },
                 toJSON: jsonFormatter
             },
