@@ -602,8 +602,6 @@
                     return this._student_id;
                 },
                 set student_id(student_id) {
-                    debugger;
-
                     if(API.currentState !== STATE_INITIALIZED) {
                         this._student_id = student_id;
                     }
