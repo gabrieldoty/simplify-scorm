@@ -124,14 +124,14 @@ Example Output:
 ```
 
 ## Initial Values
-Lastly, if you are doing an initiail load of your data from the backend API, you will need to initialize your variables on the CMI object before launching your SCORM 1.2 player:
+Lastly, if you are doing an initial load of your data from the backend API, you will need to initialize your variables on the CMI object before launching your SCORM 1.2 player. After the player has initialized - you will not be able to set any read only values:
 
 <code>
   window.API.cmi.core.student_id = '123';
 </code>
 
 ## Logging
-By default, the API is set to output nothing in the Javascript console, if you want to change this level, you can change it by setting the the apiLogLevel to the appropriate level:
+By default, the API is set to only output errors in the Javascript console, * if you want to change this level * you can change it by setting the the apiLogLevel to the appropriate level:
 
 <code>
   window.API.apiLogLevel = 5 //no logging

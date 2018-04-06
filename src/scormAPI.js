@@ -5,7 +5,7 @@
      * Scorm 1.2 Overview for Developers: https://scorm.com/scorm-explained/technical-scorm/scorm-12-overview-for-developers/
      * Run-Time Reference: http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
      */
-    window.API = new API_12();
+    window.API = new ScormAPI();
 
     var SCORM_TRUE = 'true';
     var SCORM_FALSE = 'false';
@@ -28,7 +28,7 @@
         _self.lastErrorCode = 0;
 
         // Utility Functions
-        _self.apiLogLevel = LOG_LEVEL_NONE;
+        _self.apiLogLevel = LOG_LEVEL_ERROR;
         _self.apiLog = apiLog;
         _self.on = onListener;
         _self.listenerArray = [];
@@ -36,7 +36,7 @@
         _self.throwSCORMError = throwSCORMError;
     }
 
-    function API_12() {
+    function ScormAPI() {
         var _self = this;
 
         BaseAPI.call(_self);
@@ -52,7 +52,7 @@
         _self.LMSGetDiagnostic = LMSGetDiagnostic;
 
         // Data Model
-        _self.cmi = new CMI_12(_self);
+        _self.cmi = new CMI(_self);
 
         // Utility Functions
         _self.checkState = checkState;
@@ -254,16 +254,16 @@
                                 var newChild;
 
                                 if (CMIElement.indexOf('cmi.objectives') > -1) {
-                                    newChild = new CMI_12_ObjectivesObject(_self);
+                                    newChild = new CMI_ObjectivesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('.correct_responses') > -1) {
-                                    newChild = new CMI_12_InteractionsCorrectResponsesObject(_self);
+                                    newChild = new CMI_InteractionsCorrectResponsesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('.objectives') > -1) {
-                                    newChild = new CMI_12_InteractionsObjectivesObject(_self);
+                                    newChild = new CMI_InteractionsObjectivesObject(_self);
                                 }
                                 else if (CMIElement.indexOf('cmi.interactions') > -1) {
-                                    newChild = new CMI_12_InteractionsObject(_self);
+                                    newChild = new CMI_InteractionsObject(_self);
                                 }
 
                                 if (!newChild) {
@@ -416,7 +416,7 @@
     /**
      * Scorm 1.2 Cmi data model
      */
-    function CMI_12(API) {
+    function CMI(API) {
         return {
             jsonString: false,
             _suspend_data: '',
@@ -434,7 +434,12 @@
                 return this._launch_data;
             },
             set launch_data(launch_data) {
-                API.throwSCORMError(403);
+                if (API.currentState !== STATE_INITIALIZED) {
+                    this._launch_data = launch_data;
+                }
+                else {
+                    API.throwSCORMError(403);
+                }
             },
             get comments() {
                 return this._comments;
@@ -446,7 +451,12 @@
                 return this._comments_from_lms;
             },
             set comments_from_lms(comments_from_lms) {
-                API.throwSCORMError(403);
+                if (API.currentState !== STATE_INITIALIZED) {
+                    this._comments_from_lms = comments_from_lms;
+                }
+                else {
+                    API.throwSCORMError(403);
+                }
             },
             core: {
                 jsonString: false,
@@ -474,13 +484,23 @@
                     return this._student_id;
                 },
                 set student_id(student_id) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._student_id = student_id;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get student_name() {
                     return this._student_name;
                 },
                 set student_name(student_name) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._student_name = student_name;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get lesson_location() {
                     return this._lesson_location;
@@ -492,7 +512,12 @@
                     return this._credit;
                 },
                 set credit(credit) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._credit = credit;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get lesson_status() {
                     return this._lesson_status;
@@ -504,19 +529,34 @@
                     return this._entry;
                 },
                 set entry(entry) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._entry = entry;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get total_time() {
                     return this._total_time;
                 },
                 set total_time(total_time) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._total_time = total_time;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get lesson_mode() {
                     return this._lesson_mode;
                 },
                 set lesson_mode(lesson_mode) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._lesson_mode = lesson_mode;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get exit() {
                     if (!this.jsonString) {
@@ -609,19 +649,34 @@
                     return this._mastery_score;
                 },
                 set mastery_score(mastery_score) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._mastery_score = mastery_score;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get max_time_allowed() {
                     return this._max_time_allowed;
                 },
                 set max_time_allowed(max_time_allowed) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._max_time_allowed = max_time_allowed;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 get time_limit_action() {
                     return this._time_limit_action;
                 },
                 set time_limit_action(time_limit_action) {
-                    API.throwSCORMError(403);
+                    if (API.currentState !== STATE_INITIALIZED) {
+                        this._time_limit_action = time_limit_action;
+                    }
+                    else {
+                        API.throwSCORMError(403);
+                    }
                 },
                 toJSON: jsonFormatter
             },
@@ -687,7 +742,7 @@
         };
     }
 
-    function CMI_12_InteractionsObject(API) {
+    function CMI_InteractionsObject(API) {
         return {
             jsonString: false,
             _id: '',
@@ -801,7 +856,7 @@
         }
     }
 
-    function CMI_12_ObjectivesObject(API) {
+    function CMI_ObjectivesObject(API) {
         return {
             _id: '',
             get id() {
@@ -854,7 +909,7 @@
         }
     }
 
-    function CMI_12_InteractionsObjectivesObject(API) {
+    function CMI_InteractionsObjectivesObject(API) {
         return {
             jsonString: false,
             _id: '',
@@ -874,7 +929,7 @@
         };
     }
 
-    function CMI_12_InteractionsCorrectResponsesObject(API) {
+    function CMI_InteractionsCorrectResponsesObject(API) {
         return {
             jsonString: false,
             _pattern: '',
