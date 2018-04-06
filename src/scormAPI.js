@@ -526,7 +526,7 @@
 
         return _self;
     }
-    
+
     /**
      * Cmi data model
      *
@@ -659,10 +659,10 @@
                 },
                 set total_time(total_time) {
                     if(API.currentState !== STATE_INITIALIZED) {
-                        API.throwSCORMError(API, 403);
+                        this._total_time = total_time;
                     }
                     else {
-                        this._total_time = total_time;
+                        API.throwSCORMError(API, 403);
                     }
                 },
                 get lesson_mode() {
