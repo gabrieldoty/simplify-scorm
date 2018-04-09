@@ -1,0 +1,13 @@
+{
+  "name": "simplify-scorm",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "private": true,
+  "repository": "git@github.com:gabrieldoty/simplify-scorm.git",
+  "devDependencies": {
+    "grunt": "^1.0.2",
+    "grunt-contrib-concat": "^1.0.1",
+    "gruntify-eslint": "^4.0.0"
+  }
+}
