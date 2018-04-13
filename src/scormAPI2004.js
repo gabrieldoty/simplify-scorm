@@ -46,9 +46,9 @@
       var returnValue = constants.SCORM_FALSE;
 
       if (_self.currentState === constants.STATE_INITIALIZED) {
-        _self.throwSCORMError(_self, 103);
+        _self.throwSCORMError(103);
       } else if (_self.currentState === constants.STATE_TERMINATED) {
-        _self.throwSCORMError(_self, 104);
+        _self.throwSCORMError(104);
       } else {
         _self.currentState = constants.STATE_INITIALIZED;
         _self.lastErrorCode = 0;
@@ -69,9 +69,9 @@
       var returnValue = constants.SCORM_FALSE;
 
       if (_self.currentState === constants.STATE_NOT_INITIALIZED) {
-        _self.throwSCORMError(_self, 112);
+        _self.throwSCORMError(112);
       } else if (_self.currentState === constants.STATE_TERMINATED) {
-        _self.throwSCORMError(_self, 113);
+        _self.throwSCORMError(113);
       } else {
         _self.currentState = constants.STATE_TERMINATED;
         _self.lastErrorCode = 0;
@@ -92,9 +92,9 @@
       var returnValue = "";
 
       if (_self.currentState === constants.STATE_NOT_INITIALIZED) {
-        _self.throwSCORMError(_self, 122);
+        _self.throwSCORMError(122);
       } else if (_self.currentState === constants.STATE_TERMINATED) {
-        _self.throwSCORMError(_self, 123);
+        _self.throwSCORMError(123);
       } else {
         _self.lastErrorCode = 0;
         returnValue = getCMIValue(CMIElement);
@@ -115,9 +115,9 @@
       var returnValue = "";
 
       if (_self.currentState === constants.STATE_NOT_INITIALIZED) {
-        _self.throwSCORMError(_self, 132);
+        _self.throwSCORMError(132);
       } else if (_self.currentState === constants.STATE_TERMINATED) {
-        _self.throwSCORMError(_self, 133);
+        _self.throwSCORMError(133);
       } else {
         _self.lastErrorCode = 0;
         returnValue = setCMIValue(CMIElement, value);
@@ -138,9 +138,9 @@
       var returnValue = constants.SCORM_FALSE;
 
       if (_self.currentState === constants.STATE_NOT_INITIALIZED) {
-        _self.throwSCORMError(_self, 142);
+        _self.throwSCORMError(142);
       } else if (_self.currentState === constants.STATE_TERMINATED) {
-        _self.throwSCORMError(_self, 143);
+        _self.throwSCORMError(143);
       } else {
         _self.lastErrorCode = 0;
         returnValue = constants.SCORM_TRUE;
@@ -222,17 +222,21 @@
       var returnValue = constants.SCORM_FALSE;
 
       for (var i = 0; i < structure.length; i++) {
+        var attribute = structure[i];
+
         if (i === structure.length - 1) {
-          if (!refObject.hasOwnProperty(structure[i])) {
-            _self.throwSCORMError(_self, 401, "The data model element passed to SetValue (" + CMIElement + ") is not a valid SCORM data model element.");
+          if ((attribute.substr(0, 8) == "{target=") && (typeof refObject._isTargetValid == "function")) {
+            _self.throwSCORMError(404);
+          } else if (!refObject.hasOwnProperty(attribute)) {
+            _self.throwSCORMError(401, "The data model element passed to SetValue (" + CMIElement + ") is not a valid SCORM data model element.");
           } else {
-            refObject[structure[i]] = value;
+            refObject[attribute] = value;
             if (_self.lastErrorCode == 0) {
               returnValue = constants.SCORM_TRUE;
             }
           }
         } else {
-          refObject = refObject[structure[i]];
+          refObject = refObject[attribute];
 
           if (refObject.hasOwnProperty("childArray")) {
             var index = parseInt(structure[i + 1], 10);
@@ -261,7 +265,7 @@
                 }
 
                 if (!newChild) {
-                  _self.throwSCORMError(_self, 401, "The data model element passed to SetValue (" + CMIElement + ") is not a valid SCORM data model element.");
+                  _self.throwSCORMError(401, "The data model element passed to SetValue (" + CMIElement + ") is not a valid SCORM data model element.");
                 } else {
                   refObject.childArray.push(newChild);
 
@@ -298,12 +302,17 @@
       var refObject = _self;
 
       for (var i = 0; i < structure.length; i++) {
-        if (!refObject.hasOwnProperty(structure[i])) {
-          _self.throwSCORMError(_self, 401, "The data model element passed to GetValue (" + CMIElement + ") is not a valid SCORM data model element.");
+        var attribute = structure[i];
+
+        if ((attribute.substr(0, 8) == "{target=") && (typeof refObject._isTargetValid == "function")) {
+          var target = attribute.substr(8, attribute.length - 9);
+          return refObject._isTargetValid(target);
+        } else if (!refObject.hasOwnProperty(attribute)) {
+          _self.throwSCORMError(401, "The data model element passed to GetValue (" + CMIElement + ") is not a valid SCORM data model element.");
           return "";
         }
 
-        refObject = refObject[structure[i]];
+        refObject = refObject[attribute];
       }
 
       return refObject || "";
@@ -469,7 +478,7 @@
     return {
       __version: "1.0",
       get _version() { return this.__version; },
-      set _version(version) { API.throwSCORMError(API, 404); },
+      set _version(version) { API.throwSCORMError(404); },
 
       _completion_status: "unknown", // Allowed values: "completed", "incomplete", "not attempted", "unknown"
       get completion_status() { return this._completion_status; },
@@ -477,31 +486,31 @@
 
       _completion_threshold: "", // Data type: real (10,7). Range: 0.0 to 1.0
       get completion_threshold() { return this._completion_threshold; },
-      set completion_threshold(completion_threshold) { API.throwSCORMError(API, 404); },
+      set completion_threshold(completion_threshold) { API.throwSCORMError(404); },
 
       _credit: "credit", // Allowed values: "credit", "no-credit"
       get credit() { return this._credit; },
-      set credit(credit) { API.throwSCORMError(API, 404); },
+      set credit(credit) { API.throwSCORMError(404); },
 
       _entry: "", // Allowed values: "ab-initio", "resume", ""
       get entry() { return this._entry; },
-      set entry(entry) { API.throwSCORMError(API, 404); },
+      set entry(entry) { API.throwSCORMError(404); },
 
       _exit: "", // Allowed values: "time-out", "suspend", "logout", "normal", ""
-      get exit() { return (!this.jsonString) ? API.throwSCORMError(API, 405) : this._exit; },
+      get exit() { return (!this.jsonString) ? API.throwSCORMError(405) : this._exit; },
       set exit(exit) { this._exit = exit; },
 
       _launch_data: "", // SPM 4000 characters
       get launch_data() { return this._launch_data; },
-      set launch_data(launch_data) { API.throwSCORMError(API, 404); },
+      set launch_data(launch_data) { API.throwSCORMError(404); },
 
       _learner_id: "", // SPM 4000 characters
       get learner_id() { return this._learner_id; },
-      set learner_id(learner_id) { API.throwSCORMError(API, 404); },
+      set learner_id(learner_id) { API.throwSCORMError(404); },
 
       _learner_name: "", // SPM 250 characters
       get learner_name() { return this._learner_name; },
-      set learner_name(learner_name) { API.throwSCORMError(API, 404); },
+      set learner_name(learner_name) { API.throwSCORMError(404); },
 
       _location: "", // SPM 1000 characters
       get location() { return this._location; },
@@ -509,11 +518,11 @@
 
       _max_time_allowed: "", // Data type: timeinterval (second,10,2)
       get max_time_allowed() { return this._max_time_allowed; },
-      set max_time_allowed(max_time_allowed) { API.throwSCORMError(API, 404); },
+      set max_time_allowed(max_time_allowed) { API.throwSCORMError(404); },
 
       _mode: "normal", // Allowed values: "browse", "normal", "review"
       get mode() { return this._mode; },
-      set mode(mode) { API.throwSCORMError(API, 404); },
+      set mode(mode) { API.throwSCORMError(404); },
 
       _progress_measure: "", // Data type: real (10,7). Range: 0.0 to 1.0
       get progress_measure() { return this._progress_measure; },
@@ -521,10 +530,10 @@
 
       _scaled_passing_score: "", // Data type: real (10,7). Range: -1.0 to 1.0
       get scaled_passing_score() { return this._scaled_passing_score; },
-      set scaled_passing_score(scaled_passing_score) { API.throwSCORMError(API, 404); },
+      set scaled_passing_score(scaled_passing_score) { API.throwSCORMError(404); },
 
       _session_time: "", // Data type: timeinterval (second,10,2)
-      get session_time() { return (!this.jsonString) ? API.throwSCORMError(API, 405) : this._session_time; },
+      get session_time() { return (!this.jsonString) ? API.throwSCORMError(405) : this._session_time; },
       set session_time(session_time) { this._session_time = session_time; },
 
       _success_status: "unknown", // Allowed values: "passed", "failed", "unknown"
@@ -537,21 +546,21 @@
 
       _time_limit_action: "continue,no message", // Allowed values: "exit,message", "continue,message", "exit,no message", "continue,no message"
       get time_limit_action() { return this._time_limit_action; },
-      set time_limit_action(time_limit_action) { API.throwSCORMError(API, 404); },
+      set time_limit_action(time_limit_action) { API.throwSCORMError(404); },
 
       _total_time: "0", // Data type: timeinterval (second,10,2)
       get total_time() { return this._total_time; },
-      set total_time(total_time) { API.throwSCORMError(API, 404); },
+      set total_time(total_time) { API.throwSCORMError(404); },
 
       comments_from_learner: {
         // SPM 250 comments from learner
         __children: "comment,location,timestamp",
         get _children() { return this.__children; },
-        set _children(_children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         childArray: [],
         get _count() { return String(this.childArray.length); },
-        set _count(count) { API.throwSCORMError(API, 404); },
+        set _count(count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -560,11 +569,11 @@
         // SPM 100 comments from the LMS
         __children: "comment,location,timestamp",
         get _children() { return this.__children; },
-        set _children(_children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         childArray: [],
         get _count() { return String(this.childArray.length); },
-        set _count(count) { API.throwSCORMError(API, 404); },
+        set _count(count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -573,11 +582,11 @@
         // SPM 250 interactions
         __children: "id,type,objectives,timestamp,correct_responses,weighting,learner_response,result,latency,description",
         get _children() { return this.__children; },
-        set _children(_children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         childArray: [],
         get _count() { return this.childArray.length; },
-        set _count(_count) { API.throwSCORMError(API, 404); },
+        set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -585,7 +594,7 @@
       learner_preference: {
         __children: "audio_level,language,delivery_speed,audio_captioning",
         get _children() { return this.__children; },
-        set _children(_children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         _audio_level: "1", // Data type: real (10,7). Range: 0.0 to infinity
         get audio_level() { return this._audio_level; },
@@ -610,11 +619,11 @@
         // SPM 100 objectives
         __children: "id,score,success_status,completion_status,progress_measure,description",
         get _children() { return this.__children; },
-        set _children(_children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         childArray: [],
         get _count() { return this.childArray.length; },
-        set _count(count) { API.throwSCORMError(API, 404); },
+        set _count(count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -622,7 +631,7 @@
       score: {
         __children: "scaled,raw,min,max",
         get _children() { return this.__children; },
-        set _children(children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         _scaled: "", // Data type: real (10,7). Range: -1.0 to 1.0
         get scaled() { return this._scaled; },
@@ -669,15 +678,15 @@
     return {
       _comment: "", // SPM 4000 characters
       get comment() { return this._comment; },
-      set comment(comment) { API.throwSCORMError(API, 404); },
+      set comment(comment) { API.throwSCORMError(404); },
 
       _location: "", // SPM 250 characters
       get location() { return this._location; },
-      set location(location) { API.throwSCORMError(API, 404); },
+      set location(location) { API.throwSCORMError(404); },
 
       _timestamp: "", // Data type: time (second,10,0) accurate to one second
       get timestamp() { return this._timestamp; },
-      set timestamp(timestamp) { API.throwSCORMError(API, 404); },
+      set timestamp(timestamp) { API.throwSCORMError(404); },
 
       toJSON: jsonFormatter
     };
@@ -721,7 +730,7 @@
         // SPM 10 interaction's objectives
         childArray: [],
         get _count() { return this.childArray.length; },
-        set _count(_count) { API.throwSCORMError(API, 404); },
+        set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -730,7 +739,7 @@
         // SPM changes based on interaction's type
         childArray: [],
         get _count() { return this.childArray.length; },
-        set _count(_count) { API.throwSCORMError(API, 404); },
+        set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
       },
@@ -784,7 +793,7 @@
       score: {
         __children: "scaled,raw,min,max",
         get _children() { return this.__children; },
-        set _children(children) { API.throwSCORMError(API, 404); },
+        set _children(children) { API.throwSCORMError(404); },
 
         _scaled: "", // Data type: real (10,7). Range: -1.0 to 1.0
         get scaled() { return this._scaled; },
@@ -815,28 +824,42 @@
   function ADL(API) {
     return {
       nav: {
-        _request: "",
+        _request: "_none_", // Allowed values: "continue", "previous", "choice", "jump", "exit", "exitAll", "abandon", "abandonAll", "_none_"
         get request() { return this._request; },
         set request(request) { this._request = request; },
 
         request_valid: {
-          _continue: "unknown",
+          _continue: "unknown", // Allowed values: "true", "false", "unknown"
           get continue() { return this._continue; },
-          set continue(_) { API.throwSCORMError(API, 404); },
+          set continue(_) { API.throwSCORMError(404); },
 
-          _previous: "unknown",
+          _previous: "unknown", // Allowed values: "true", "false", "unknown"
           get previous() { return this._previous; },
-          set previous(_) { API.throwSCORMError(API, 404); },
+          set previous(_) { API.throwSCORMError(404); },
 
-          _choice: "unknown",
-          get choice() { return this._choice; },
-          set choice(_) { API.throwSCORMError(API, 404); },
+          choice: {
+            _isTargetValid: adlNavRequestValidChoice
+          },
 
-          _jump: "unknown",
-          get jump() { return this._jump; },
-          set jump(_) { API.throwSCORMError(API, 404); }
+          jump: {
+            _isTargetValid: adlNavRequestValidJump
+          }
         }
       }
     };
+  }
+
+  /**
+   * Determine if the choice request is valid
+   */
+  function adlNavRequestValidChoice(_target) {
+    return "unknown";
+  }
+
+  /**
+   * Determine if the jump request is valid
+   */
+  function adlNavRequestValidJump(_target) {
+    return "unknown";
   }
 })();

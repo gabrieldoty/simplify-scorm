@@ -212,4 +212,11 @@
 ### Run-Time Navigation Data Model Compliance Requirements (Page 59)
 | REQ ID | Requirement |
 | ------ | ----------- |
-| TODO | TODO |
+| REQ_47.2.1 | If the **adl.nav.request** is for a choice navigation request, then the format of the characterstring shall be: `{target=<STRING>}choice`. Where `<STRING>` represents the target of the pending choice navigation request. |
+| REQ_47.2.2 | If the **adl.nav.request** is for a jump navigation request, then the format of the characterstring shall be: `{target=<STRING>}jump`. Where `<STRING>` represents the target of the pending jump navigation request. |
+| REQ_47.4 | Upon normal termination of a SCO (the SCO set **cmi.exit** to `""` or `normal`) the LMS shall process the navigation request. |
+| REQ_47.5 | If the SCO terminates in a suspended state (the SCO set **cmi.exit** to `suspend`), the LMS shall not process the navigation request identified by this element, but should instead process a Suspend or SuspendAll request, as appropriate. |
+| REQ_48.2 | The LMS shall determine if the request to continue (**adl.nav.request_valid.continue**) is valid based on the state of the Activity Tree. |
+| REQ_49.2 | The LMS shall determine if the request to go previous (**adl.nav.request_valid.previous**) is valid based on the state of the Activity Tree. |
+| REQ_50.2 | The **adl.nav.request_valid.choice.{target=&lt;STRING&gt;}** data model element shall be implemented to return one of the following restricted vocabulary tokens: `true`, `false`, `unknown`<br><br>The LMS shall determine if the choice request is valid based on the state of the Activity Tree. |
+| REQ_119.2 | The **adl.nav.request_valid.jump.{target=&lt;STRING&gt;}** data model element shall be implemented to return one of the following restricted vocabulary tokens: `true`, `false`, `unknown`<br><br>The LMS shall determine if the jump request is valid based on the state of the Activity Tree. |
