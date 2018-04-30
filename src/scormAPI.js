@@ -407,7 +407,7 @@
       core: {
         jsonString: false,
 
-        __children: "student_id, student_name, lesson_location, credit, lesson_status, entry, score, total_time, lesson_mode, exit, session_time",
+        __children: "student_id,student_name,lesson_location,credit,lesson_status,entry,score,total_time,lesson_mode,exit,session_time",
         get _children() { return this.__children; },
         set _children(__children) { API.throwSCORMError(402); },
 
@@ -496,13 +496,13 @@
           get raw() { return this._raw; },
           set raw(raw) { this._raw = raw; },
 
-          _max: "100",
-          get max() { return this._max; },
-          set max(max) { this._max = max; },
-
           _min: "",
           get min() { return this._min; },
           set min(min) { this._min = min; },
+
+          _max: "100",
+          get max() { return this._max; },
+          set max(max) { this._max = max; },
 
           toJSON: jsonFormatter
         },
@@ -561,7 +561,7 @@
       },
 
       student_preference: {
-        __children: "language,speech,audio,speed,text",
+        __children: "audio,language,speed,text",
         get _children() { return this.__children; },
         set _children(_children) { API.throwSCORMError(402); },
 
@@ -639,6 +639,7 @@
 
         toJSON: jsonFormatter
       },
+
       correct_responses: {
         childArray: [],
         get _count() { return this.childArray.length; },
@@ -657,6 +658,10 @@
       get id() { return this._id; },
       set id(id) { this._id = id; },
 
+      _status: "",
+      get status() { return this._status; },
+      set status(status) { this._status = status; },
+
       score: {
         __children: "raw,min,max",
         get _children() { return this.__children; },
@@ -666,17 +671,13 @@
         get raw() { return this._raw; },
         set raw(raw) { this._raw = raw; },
 
-        _max: "",
-        get max() { return this._max; },
-        set max(max) { this._max = max; },
-
         _min: "",
         get min() { return this._min; },
         set min(min) { this._min = min; },
 
-        _status: "",
-        get status() { return this._status; },
-        set status(status) { this._status = status; },
+        _max: "",
+        get max() { return this._max; },
+        set max(max) { this._max = max; },
 
         toJSON: jsonFormatter
       },
