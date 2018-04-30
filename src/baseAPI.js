@@ -14,6 +14,9 @@
     _self.apiLog = apiLog;
     _self.apiLogLevel = constants.LOG_LEVEL_ERROR;
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
+    _self.isInitialized = isInitialized;
+    _self.isNotInitialized = isNotInitialized;
+    _self.isTerminated = isTerminated;
     _self.listenerArray = [];
     _self.on = onListener;
     _self.processListeners = processListeners;
@@ -96,36 +99,50 @@
   }
 
   /**
+   * Returns true if the API's current state is STATE_INITIALIZED
+   */
+  function isInitialized() {
+    return this.currentState === constants.STATE_INITIALIZED;
+  }
+
+  /**
+   * Returns true if the API's current state is STATE_NOT_INITIALIZED
+   */
+  function isNotInitialized() {
+    return this.currentState === constants.STATE_NOT_INITIALIZED;
+  }
+
+  /**
+   * Returns true if the API's current state is STATE_TERMINATED
+   */
+  function isTerminated() {
+    return this.currentState === constants.STATE_TERMINATED;
+  }
+
+  /**
    * Provides a mechanism for attaching to a specific scorm event
    *
    * @param listenerString
    * @param callback
    */
   function onListener(listenerString, callback) {
-    if (!callback) {
-      return;
-    }
+    if (!callback) return;
 
     var listenerSplit = listenerString.split(".");
-
-    if (listenerSplit.length === 0) {
-      return;
-    }
+    if (listenerSplit.length === 0) return;
 
     var functionName = listenerSplit[0];
-    var CMIElement = null;
 
+    var CMIElement = null;
     if (listenerSplit.length > 1) {
       CMIElement = listenerString.replace(functionName + ".", "");
     }
 
-    this.listenerArray.push(
-      {
-        functionName: functionName,
-        CMIElement: CMIElement,
-        callback: callback
-      }
-    );
+    this.listenerArray.push({
+      functionName: functionName,
+      CMIElement: CMIElement,
+      callback: callback
+    });
   }
 
   /**
@@ -138,13 +155,12 @@
   function processListeners(functionName, CMIElement, value) {
     for (var i = 0; i < this.listenerArray.length; i++) {
       var listener = this.listenerArray[i];
+      var functionsMatch = listener.functionName === functionName;
+      var listenerHasCMIElement = !!listener.CMIElement;
+      var CMIElementsMatch = listener.CMIElement === CMIElement;
 
-      if (listener.functionName === functionName) {
-        if (listener.CMIElement && listener.CMIElement === CMIElement) {
-          listener.callback(CMIElement, value);
-        } else {
-          listener.callback(CMIElement, value);
-        }
+      if (functionsMatch && (!listenerHasCMIElement || CMIElementsMatch)) {
+        listener.callback(CMIElement, value);
       }
     }
   }

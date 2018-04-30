@@ -39,8 +39,10 @@
     function LMSInitialize() {
       var returnValue = constants.SCORM_FALSE;
 
-      if (_self.currentState === constants.STATE_INITIALIZED) {
+      if (_self.isInitialized()) {
         _self.throwSCORMError(101, "LMS was already initialized!");
+      } else if (_self.isTerminated()) {
+        _self.throwSCORMError(101, "LMS is already finished!");
       } else {
         _self.currentState = constants.STATE_INITIALIZED;
         returnValue = constants.SCORM_TRUE;
@@ -59,6 +61,7 @@
       var returnValue = constants.SCORM_FALSE;
 
       if (_self.checkState()) {
+        _self.currentState = constants.STATE_TERMINATED;
         returnValue = constants.SCORM_TRUE;
         _self.processListeners("LMSFinish");
       }
@@ -178,7 +181,7 @@
      * Checks the LMS state and ensures it has been initialized
      */
     function checkState() {
-      if (this.currentState !== constants.STATE_INITIALIZED) {
+      if (!this.isInitialized()) {
         this.throwSCORMError(301);
         return false;
       }
@@ -374,21 +377,13 @@
    */
   function CMI(API) {
     return {
-      jsonString: false,
-
       _suspend_data: "",
       get suspend_data() { return this._suspend_data; },
       set suspend_data(suspend_data) { this._suspend_data = suspend_data; },
 
       _launch_data: "",
       get launch_data() { return this._launch_data; },
-      set launch_data(launch_data) {
-        if (API.currentState !== constants.STATE_INITIALIZED) {
-          this._launch_data = launch_data;
-        } else {
-          API.throwSCORMError(403);
-        }
-      },
+      set launch_data(launch_data) { API.isNotInitialized() ? this._launch_data = launch_data : API.throwSCORMError(403); },
 
       _comments: "",
       get comments() { return this._comments; },
@@ -396,40 +391,20 @@
 
       _comments_from_lms: "",
       get comments_from_lms() { return this._comments_from_lms; },
-      set comments_from_lms(comments_from_lms) {
-        if (API.currentState !== constants.STATE_INITIALIZED) {
-          this._comments_from_lms = comments_from_lms;
-        } else {
-          API.throwSCORMError(403);
-        }
-      },
+      set comments_from_lms(comments_from_lms) { API.isNotInitialized() ? this._comments_from_lms = comments_from_lms : API.throwSCORMError(403); },
 
       core: {
-        jsonString: false,
-
         __children: "student_id,student_name,lesson_location,credit,lesson_status,entry,score,total_time,lesson_mode,exit,session_time",
         get _children() { return this.__children; },
-        set _children(__children) { API.throwSCORMError(402); },
+        set _children(_children) { API.throwSCORMError(402); },
 
         _student_id: "",
         get student_id() { return this._student_id; },
-        set student_id(student_id) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._student_id = student_id;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set student_id(student_id) { API.isNotInitialized() ? this._student_id = student_id : API.throwSCORMError(403); },
 
         _student_name: "",
         get student_name() { return this._student_name; },
-        set student_name(student_name) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._student_name = student_name;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set student_name(student_name) { API.isNotInitialized() ? this._student_name = student_name : API.throwSCORMError(403); },
 
         _lesson_location: "",
         get lesson_location() { return this._lesson_location; },
@@ -437,13 +412,7 @@
 
         _credit: "",
         get credit() { return this._credit; },
-        set credit(credit) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._credit = credit;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set credit(credit) { API.isNotInitialized() ? this._credit = credit : API.throwSCORMError(403); },
 
         _lesson_status: "",
         get lesson_status() { return this._lesson_status; },
@@ -451,33 +420,15 @@
 
         _entry: "",
         get entry() { return this._entry; },
-        set entry(entry) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._entry = entry;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set entry(entry) { API.isNotInitialized() ? this._entry = entry : API.throwSCORMError(403); },
 
         _total_time: "",
         get total_time() { return this._total_time; },
-        set total_time(total_time) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._total_time = total_time;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set total_time(total_time) { API.isNotInitialized() ? this._total_time = total_time : API.throwSCORMError(403); },
 
         _lesson_mode: "normal",
         get lesson_mode() { return this._lesson_mode; },
-        set lesson_mode(lesson_mode) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._lesson_mode = lesson_mode;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set lesson_mode(lesson_mode) { API.isNotInitialized() ? this._lesson_mode = lesson_mode : API.throwSCORMError(403); },
 
         _exit: "",
         get exit() { return (!this.jsonString) ? API.throwSCORMError(404) : this._exit; },
@@ -517,7 +468,7 @@
 
         childArray: [],
         get _count() { return this.childArray.length; },
-        set _count(count) { API.throwSCORMError(402); },
+        set _count(_count) { API.throwSCORMError(402); },
 
         toJSON: jsonFormatter
       },
@@ -529,33 +480,15 @@
 
         _mastery_score: "",
         get mastery_score() { return this._mastery_score; },
-        set mastery_score(mastery_score) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._mastery_score = mastery_score;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set mastery_score(mastery_score) { API.isNotInitialized() ? this._mastery_score = mastery_score : API.throwSCORMError(403); },
 
         _max_time_allowed: "",
         get max_time_allowed() { return this._max_time_allowed; },
-        set max_time_allowed(max_time_allowed) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._max_time_allowed = max_time_allowed;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set max_time_allowed(max_time_allowed) { API.isNotInitialized() ? this._max_time_allowed = max_time_allowed : API.throwSCORMError(403); },
 
         _time_limit_action: "",
         get time_limit_action() { return this._time_limit_action; },
-        set time_limit_action(time_limit_action) {
-          if (API.currentState !== constants.STATE_INITIALIZED) {
-            this._time_limit_action = time_limit_action;
-          } else {
-            API.throwSCORMError(403);
-          }
-        },
+        set time_limit_action(time_limit_action) { API.isNotInitialized() ? this._time_limit_action = time_limit_action : API.throwSCORMError(403); },
 
         toJSON: jsonFormatter
       },
@@ -602,8 +535,6 @@
 
   function CMI_InteractionsObject(API) {
     return {
-      jsonString: false,
-
       _id: "",
       get id() { return (!this.jsonString) ? API.throwSCORMError(404) : this._id; },
       set id(id) { this._id = id; },
@@ -688,8 +619,6 @@
 
   function CMI_InteractionsObjectivesObject(API) {
     return {
-      jsonString: false,
-
       _id: "",
       get id() { return (!this.jsonString) ? API.throwSCORMError(404) : this._id; },
       set id(id) { this._id = id; },
@@ -700,8 +629,6 @@
 
   function CMI_InteractionsCorrectResponsesObject(API) {
     return {
-      jsonString: false,
-
       _pattern: "",
       get pattern() { return (!this.jsonString) ? API.throwSCORMError(404) : this._pattern; },
       set pattern(pattern) { this._pattern = pattern; },
