@@ -12,20 +12,17 @@
 
     var jsonValue = JSON.stringify(this);
 
+    delete this.jsonString;
     this.toJSON = jsonFormatter;
-    this.jsonString = false;
 
     var returnObject = JSON.parse(jsonValue);
+    delete returnObject.jsonString;
 
     for (var key in returnObject) {
-      if (returnObject.hasOwnProperty(key)) {
-        if (key.indexOf("_") === 0) {
-          delete returnObject[key];
-        }
+      if (returnObject.hasOwnProperty(key) && key.indexOf("_") === 0) {
+        delete returnObject[key];
       }
     }
-
-    delete returnObject.jsonString;
 
     return returnObject;
   }
