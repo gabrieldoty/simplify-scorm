@@ -32,6 +32,7 @@
     // Utility Functions
     _self.checkState = checkState;
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
+    _self.loadFromJSON = loadFromJSON;
 
     /**
      * @returns {string} bool
@@ -367,6 +368,35 @@
       }
 
       return detail ? detailMessage : basicMessage;
+    }
+
+    /**
+     * Loads CMI data from a JSON object.
+     */
+    function loadFromJSON(json, CMIElement) {
+      if (!_self.isNotInitialized()) {
+        console.error("loadFromJSON can only be called before the call to LMSInitialize.");
+        return;
+      }
+
+      CMIElement = CMIElement || "cmi";
+
+      for (var key in json) {
+        if (json.hasOwnProperty(key) && json[key]) {
+          var currentCMIElement = CMIElement + "." + key;
+          var value = json[key];
+
+          if (value["childArray"]) {
+            for (var i = 0; i < value["childArray"].length; i++) {
+              _self.loadFromJSON(value["childArray"][i], currentCMIElement + "." + i);
+            }
+          } else if (value.constructor === Object) {
+            _self.loadFromJSON(value, currentCMIElement);
+          } else {
+            setCMIValue(currentCMIElement, value);
+          }
+        }
+      }
     }
 
     return _self;
