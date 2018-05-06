@@ -1,16 +1,12 @@
 {
   "env": {
     "browser": true,
+    "jasmine": true,
+    "mocha": true,
     "node": true
   },
   "extends": "eslint:recommended",
-  "globals": {
-    "beforeEach": true,
-    "context": true,
-    "describe": true,
-    "expect": true,
-    "it": true
-  },
+  "globals": {},
   "root": true,
   "rules": {
     "array-bracket-spacing": ["error", "never"],
