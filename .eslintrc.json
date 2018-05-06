@@ -4,7 +4,13 @@
     "node": true
   },
   "extends": "eslint:recommended",
-  "globals": {},
+  "globals": {
+    "beforeEach": true,
+    "context": true,
+    "describe": true,
+    "expect": true,
+    "it": true
+  },
   "root": true,
   "rules": {
     "array-bracket-spacing": ["error", "never"],
