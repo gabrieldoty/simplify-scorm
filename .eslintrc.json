@@ -6,7 +6,9 @@
     "node": true
   },
   "extends": "eslint:recommended",
-  "globals": {},
+  "globals": {
+    "sinon": true
+  },
   "root": true,
   "rules": {
     "array-bracket-spacing": ["error", "never"],

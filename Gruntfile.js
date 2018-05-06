@@ -15,7 +15,7 @@ module.exports = function(grunt) {
       }
     },
     eslint: {
-      src: srcFiles
+      dist: srcFiles
     },
     karma: {
       options: {
@@ -24,10 +24,10 @@ module.exports = function(grunt) {
         frameworks: ["mocha", "sinon-chai"],
         reporters: ["dots"]
       },
+      dev: {},
       dist: {
         singleRun: true
-      },
-      unit: {}
+      }
     },
     uglify: {
       options: {
@@ -46,6 +46,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-karma");
   grunt.loadNpmTasks("gruntify-eslint");
 
-  grunt.registerTask("default", ["eslint", "karma:dist", "concat:dist", "uglify:dist"]);
-  grunt.registerTask("test", ["karma:unit"]);
+  grunt.registerTask("build", ["concat:dist", "uglify:dist"]);
+  grunt.registerTask("test", ["eslint:dist", "karma:dist"]);
+  grunt.registerTask("watch", ["karma:dev"]);
+
+  grunt.registerTask("default", ["test", "build"]);
 };
