@@ -13,6 +13,7 @@
     // Utility Functions
     _self.apiLog = apiLog;
     _self.apiLogLevel = constants.LOG_LEVEL_ERROR;
+    _self.clearSCORMError = clearSCORMError;
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
     _self.isInitialized = isInitialized;
     _self.isNotInitialized = isNotInitialized;
@@ -50,7 +51,16 @@
   }
 
   /**
-   * Formats the scorm messages for easy reading
+   * Clears the last SCORM error code on success
+   */
+  function clearSCORMError(success) {
+    if (success !== constants.SCORM_FALSE) {
+      this.lastErrorCode = 0;
+    }
+  }
+
+  /**
+   * Formats the SCORM messages for easy reading
    *
    * @param functionName
    * @param CMIElement
@@ -120,7 +130,7 @@
   }
 
   /**
-   * Provides a mechanism for attaching to a specific scorm event
+   * Provides a mechanism for attaching to a specific SCORM event
    *
    * @param listenerString
    * @param callback
@@ -166,7 +176,7 @@
   }
 
   /**
-   * Throws a scorm error
+   * Throws a SCORM error
    *
    * @param errorNumber
    * @param message

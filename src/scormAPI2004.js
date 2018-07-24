@@ -9,6 +9,8 @@
    *
    * SPM = Smallest Permitted Maximum
    */
+  window.simplifyScorm.ScormAPI2004 = ScormAPI2004;
+
   var BaseAPI = window.simplifyScorm.BaseAPI;
   var constants = window.simplifyScorm.constants;
   var jsonFormatter = window.simplifyScorm.jsonFormatter;
@@ -37,6 +39,7 @@
 
     // Utility Functions
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
+    _self.loadFromJSON = loadFromJSON;
 
     /**
      * @param Empty String
@@ -57,6 +60,7 @@
       }
 
       _self.apiLog("Initialize", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -80,6 +84,7 @@
       }
 
       _self.apiLog("Terminate", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -102,6 +107,7 @@
       }
 
       _self.apiLog("GetValue", CMIElement, ": returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -125,6 +131,7 @@
       }
 
       _self.apiLog("SetValue", CMIElement, ": " + value + ": result: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -148,6 +155,7 @@
       }
 
       _self.apiLog("Commit", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -237,6 +245,10 @@
           }
         } else {
           refObject = refObject[attribute];
+          if (!refObject) {
+            _self.throwSCORMError(401, "The data model element passed to SetValue (" + CMIElement + ") is not a valid SCORM data model element.");
+            break;
+          }
 
           if (refObject.hasOwnProperty("childArray")) {
             var index = parseInt(structure[i + 1], 10);
@@ -281,7 +293,7 @@
       }
 
       if (returnValue === constants.SCORM_FALSE) {
-        _self.apiLog("There was an error setting the value for: " + CMIElement + ", value of: " + value, constants.LOG_LEVEL_WARNING);
+        _self.apiLog("SetValue", null, "There was an error setting the value for: " + CMIElement + ", value of: " + value, constants.LOG_LEVEL_WARNING);
       }
 
       return returnValue;
@@ -466,6 +478,35 @@
       }
 
       return detail ? detailMessage : basicMessage;
+    }
+
+    /**
+     * Loads CMI data from a JSON object.
+     */
+    function loadFromJSON(json, CMIElement) {
+      if (!_self.isNotInitialized()) {
+        console.error("loadFromJSON can only be called before the call to Initialize.");
+        return;
+      }
+
+      CMIElement = CMIElement || "cmi";
+
+      for (var key in json) {
+        if (json.hasOwnProperty(key) && json[key]) {
+          var currentCMIElement = CMIElement + "." + key;
+          var value = json[key];
+
+          if (value["childArray"]) {
+            for (var i = 0; i < value["childArray"].length; i++) {
+              _self.loadFromJSON(value["childArray"][i], currentCMIElement + "." + i);
+            }
+          } else if (value.constructor === Object) {
+            _self.loadFromJSON(value, currentCMIElement);
+          } else {
+            setCMIValue(currentCMIElement, value);
+          }
+        }
+      }
     }
 
     return _self;

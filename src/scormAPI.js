@@ -5,6 +5,8 @@
    * Scorm 1.2 Overview for Developers: https://scorm.com/scorm-explained/technical-scorm/scorm-12-overview-for-developers/
    * Run-Time Reference: http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
    */
+  window.simplifyScorm.ScormAPI = ScormAPI;
+
   var BaseAPI = window.simplifyScorm.BaseAPI;
   var constants = window.simplifyScorm.constants;
   var jsonFormatter = window.simplifyScorm.jsonFormatter;
@@ -51,6 +53,7 @@
       }
 
       _self.apiLog("LMSInitialize", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -68,6 +71,7 @@
       }
 
       _self.apiLog("LMSFinish", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -85,6 +89,7 @@
       }
 
       _self.apiLog("LMSGetValue", CMIElement, ": returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -98,11 +103,12 @@
       var returnValue = "";
 
       if (_self.checkState()) {
-        setCMIValue(CMIElement, value);
+        returnValue = setCMIValue(CMIElement, value);
         _self.processListeners("LMSSetValue", CMIElement, value);
       }
 
-      _self.apiLog("LMSSetValue", CMIElement, ": " + value + ": result: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.apiLog("LMSSetValue", CMIElement, ": " + value + ": returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -121,6 +127,7 @@
       }
 
       _self.apiLog("LMSCommit", null, "returned: " + returnValue, constants.LOG_LEVEL_INFO);
+      _self.clearSCORMError(returnValue);
 
       return returnValue;
     }
@@ -216,6 +223,10 @@
           }
         } else {
           refObject = refObject[structure[i]];
+          if (!refObject) {
+            _self.throwSCORMError(101, "setCMIValue did not find an element for: " + CMIElement);
+            break;
+          }
 
           if (refObject.hasOwnProperty("childArray")) {
             var index = parseInt(structure[i + 1], 10);
@@ -255,7 +266,7 @@
       }
 
       if (found === constants.SCORM_FALSE) {
-        _self.apiLog("There was an error setting the value for: " + CMIElement + ", value of: " + value, constants.LOG_LEVEL_WARNING);
+        _self.apiLog("LMSSetValue", null, "There was an error setting the value for: " + CMIElement + ", value of: " + value, constants.LOG_LEVEL_WARNING);
       }
 
       return found;
