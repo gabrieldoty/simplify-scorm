@@ -40,6 +40,7 @@
     // Utility Functions
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
     _self.loadFromJSON = loadFromJSON;
+    _self.replaceWithAnotherScormAPI = replaceWithAnotherScormAPI;
 
     /**
      * @param Empty String
@@ -507,6 +508,33 @@
           }
         }
       }
+    }
+
+    /**
+     * Replace the whole API with another
+     */
+    function replaceWithAnotherScormAPI(newAPI) {
+      // API Signature
+      _self.Initialize = newAPI.Initialize;
+      _self.Terminate = newAPI.Terminate;
+      _self.GetValue = newAPI.GetValue;
+      _self.SetValue = newAPI.SetValue;
+      _self.Commit = newAPI.Commit;
+      _self.GetLastError = newAPI.GetLastError;
+      _self.GetErrorString = newAPI.GetErrorString;
+      _self.GetDiagnostic = newAPI.GetDiagnostic;
+
+      // Data Model
+      _self.cmi = newAPI.cmi;
+      _self.adl = newAPI.adl;
+
+      // Utility Functions
+      _self.getLmsErrorMessageDetails = newAPI.getLmsErrorMessageDetails;
+      _self.loadFromJSON = newAPI.loadFromJSON;
+      _self.replaceWithAnotherScormAPI = newAPI.replaceWithAnotherScormAPI;
+
+      // API itself
+      _self = newAPI; // eslint-disable-line consistent-this
     }
 
     return _self;
