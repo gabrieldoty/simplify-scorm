@@ -210,6 +210,28 @@
       });
     });
 
+    describe("#clearSCORMError", function() {
+      var anyLastErrorCode = 101;
+
+      beforeEach(function() {
+        api.lastErrorCode = anyLastErrorCode;
+      });
+
+      context("given a success", function() {
+        it("should clear the last SCORM error", function() {
+          api.clearSCORMError(constants.SCORM_TRUE);
+          expect(api.lastErrorCode).to.equal(0);
+        });
+      });
+
+      context("given a failure", function() {
+        it("should not clear the last SCORM error", function() {
+          api.clearSCORMError(constants.SCORM_FALSE);
+          expect(api.lastErrorCode).to.equal(anyLastErrorCode);
+        });
+      });
+    });
+
     describe("#getLmsErrorMessageDetails", function() {
       it("should return no error", function() {
         expect(api.getLmsErrorMessageDetails()).to.equal("No error");

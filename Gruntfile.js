@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
   var banner = "/*! <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today('yyyy-mm-dd') %> */";
-  var srcFiles = ["src/init.js", "src/constants.js", "src/jsonFormatter.js", "src/baseAPI.js", "src/scormAPI.js"];
+  var srcFiles = ["src/init.js", "src/constants.js", "src/jsonFormatter.js", "src/baseAPI.js", "src/scormAPI.js", "src/scormAPI2004.js"];
   var testFiles = srcFiles.concat("test/**/*.js");
 
   grunt.initConfig({
