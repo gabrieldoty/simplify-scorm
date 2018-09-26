@@ -308,22 +308,23 @@
     });
 
     describe("#processListeners", function() {
-      var anyFunctionName = "any function name";
-      var anyOtherFunctionName = "any other function name";
+      var anyFunctionName = "anyFunctionMame";
+      var anyOtherFunctionName = "anyOtherFunctionName";
       var anyCMIElement = "any CMI element";
       var anyOtherCMIElement = "any other CMI element";
       var anyValue = "any value";
       var callbacks;
 
       beforeEach(function() {
-        callbacks = [sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub()];
+        callbacks = [sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub()];
 
         api.on(anyFunctionName, callbacks[0]);
         api.on(anyFunctionName + "." + anyCMIElement, callbacks[1]);
         api.on(anyFunctionName + "." + anyOtherCMIElement, callbacks[2]);
-        api.on(anyOtherFunctionName, callbacks[3]);
-        api.on(anyOtherFunctionName + "." + anyCMIElement, callbacks[4]);
-        api.on(anyOtherFunctionName + "." + anyOtherCMIElement, callbacks[5]);
+        api.on(anyFunctionName + " " + anyOtherFunctionName, callbacks[3]);
+        api.on(anyOtherFunctionName, callbacks[4]);
+        api.on(anyOtherFunctionName + "." + anyCMIElement, callbacks[5]);
+        api.on(anyOtherFunctionName + "." + anyOtherCMIElement, callbacks[6]);
 
         api.processListeners(anyFunctionName, anyCMIElement, anyValue);
       });
@@ -350,11 +351,20 @@
         });
       });
 
+      context("when function name matches multiple functions", function() {
+        context("and listener has not specified a CMI element", function() {
+          it("should call the listener", function() {
+            expect(callbacks[3]).to.have.been.calledOnce;
+            expect(callbacks[3]).to.have.been.calledWith(anyCMIElement, anyValue);
+          });
+        });
+      });
+
       context("when function name doesn't match", function() {
         it("should not call the listener", function() {
-          expect(callbacks[3]).to.not.have.been.called;
           expect(callbacks[4]).to.not.have.been.called;
           expect(callbacks[5]).to.not.have.been.called;
+          expect(callbacks[6]).to.not.have.been.called;
         });
       });
     });
