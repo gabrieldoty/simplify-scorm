@@ -138,21 +138,24 @@
   function onListener(listenerString, callback) {
     if (!callback) return;
 
-    var listenerSplit = listenerString.split(".");
-    if (listenerSplit.length === 0) return;
+    var listenerFunctions = listenerString.split(" ");
+    for (var i = 0; i < listenerFunctions.length; i++) {
+      var listenerSplit = listenerFunctions[i].split(".");
+      if (listenerSplit.length === 0) return;
 
-    var functionName = listenerSplit[0];
+      var functionName = listenerSplit[0];
 
-    var CMIElement = null;
-    if (listenerSplit.length > 1) {
-      CMIElement = listenerString.replace(functionName + ".", "");
+      var CMIElement = null;
+      if (listenerSplit.length > 1) {
+        CMIElement = listenerString.replace(functionName + ".", "");
+      }
+
+      this.listenerArray.push({
+        functionName: functionName,
+        CMIElement: CMIElement,
+        callback: callback
+      });
     }
-
-    this.listenerArray.push({
-      functionName: functionName,
-      CMIElement: CMIElement,
-      callback: callback
-    });
   }
 
   /**
