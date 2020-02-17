@@ -5,7 +5,7 @@
    * Scorm 2004 Overview for Developers: https://scorm.com/scorm-explained/technical-scorm/scorm-2004-overview-for-developers/
    * Run-Time Reference: http://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
    * Scorm specification: https://adlnet.gov/research/scorm/scorm-2004-4th-edition/
-   * Testing requirements: https://adlnet.gov/wp-content/uploads/2011/07/SCORM_2004_4ED_v1_1_TR_20090814.pdf
+   * Testing requirements: https://adlnet.gov/assets/uploads/SCORM_2004_4ED_v1_1_TR_20090814.pdf
    *
    * SPM = Smallest Permitted Maximum
    */
@@ -654,7 +654,7 @@
         set _children(_children) { API.throwSCORMError(404); },
 
         childArray: [],
-        get _count() { return this.childArray.length; },
+        get _count() { return String(this.childArray.length); },
         set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
@@ -691,7 +691,7 @@
         set _children(_children) { API.throwSCORMError(404); },
 
         childArray: [],
-        get _count() { return this.childArray.length; },
+        get _count() { return String(this.childArray.length); },
         set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
@@ -798,7 +798,7 @@
       objectives: {
         // SPM 10 interaction's objectives
         childArray: [],
-        get _count() { return this.childArray.length; },
+        get _count() { return String(this.childArray.length); },
         set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
@@ -807,7 +807,7 @@
       correct_responses: {
         // SPM changes based on interaction's type
         childArray: [],
-        get _count() { return this.childArray.length; },
+        get _count() { return String(this.childArray.length); },
         set _count(_count) { API.throwSCORMError(404); },
 
         toJSON: jsonFormatter
