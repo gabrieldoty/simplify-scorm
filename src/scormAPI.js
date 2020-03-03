@@ -35,7 +35,7 @@
     _self.checkState = checkState;
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
     _self.loadFromJSON = loadFromJSON;
-    _self.replaceWithAnotherScormAPI = replaceWithAnotherScormAPI;
+    _self.reset = reset;
 
     /**
      * @returns {string} bool
@@ -412,30 +412,13 @@
     }
 
     /**
-     * Replace the whole API with another
+     * Reset the API to its initial state
      */
-    function replaceWithAnotherScormAPI(newAPI) {
-      // API Signature
-      _self.LMSInitialize = newAPI.LMSInitialize;
-      _self.LMSFinish = newAPI.LMSFinish;
-      _self.LMSGetValue = newAPI.LMSGetValue;
-      _self.LMSSetValue = newAPI.LMSSetValue;
-      _self.LMSCommit = newAPI.LMSCommit;
-      _self.LMSGetLastError = newAPI.LMSGetLastError;
-      _self.LMSGetErrorString = newAPI.LMSGetErrorString;
-      _self.LMSGetDiagnostic = newAPI.LMSGetDiagnostic;
+    function reset() {
+      BaseAPI.reset.call(_self);
 
       // Data Model
-      _self.cmi = newAPI.cmi;
-
-      // Utility Functions
-      _self.checkState = newAPI.checkState;
-      _self.getLmsErrorMessageDetails = newAPI.getLmsErrorMessageDetails;
-      _self.loadFromJSON = newAPI.loadFromJSON;
-      _self.replaceWithAnotherScormAPI = newAPI.replaceWithAnotherScormAPI;
-
-      // API itself
-      _self = newAPI; // eslint-disable-line consistent-this
+      _self.cmi = new CMI(_self);
     }
 
     return _self;

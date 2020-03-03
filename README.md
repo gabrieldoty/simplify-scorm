@@ -213,23 +213,15 @@ window.API.apiLogLevel = 5; // No logging
 
 ## Resetting
 
-There may come a time when you need to reset the SCORM 1.2 API. Two methods are available.
-
-You can create a new API and replace the one available on `window.API`:
-
-```javascript
-window.API = new window.simplifyScorm.ScormAPI();
-```
-
-You can also create a new API and ask the existing one to use the new API instead.
+There may come a time when you need to reset the SCORM 1.2 API.
 This is useful when a SCORM object allows retrying after a failure, and you want to track each attempt in a separate CMI object.
-SCORM objects often keep a reference to the original API, which is why this manipulation is needed:
+SCORM objects often keep a reference to the original API, which is why we recommend resetting the API instead of creating a new one:
 
 ```javascript
-var newAPI = new window.simplifyScorm.ScormAPI();
-window.API.replaceWithAnotherScormAPI(newAPI);
-window.API = newAPI;
+window.API.reset();
 ```
+
+Resetting the API brings it back to its original state, including a brand new, untouched CMI object.
 
 # SCORM 2004
 
@@ -423,20 +415,12 @@ window.API_1484_11.apiLogLevel = 5; // No logging
 
 ## Resetting
 
-There may come a time when you need to reset the SCORM 2004 API. Two methods are available.
-
-You can create a new API and replace the one available on `window.API_1484_11`:
-
-```javascript
-window.API_1484_11 = new window.simplifyScorm.ScormAPI2004();
-```
-
-You can also create a new API and ask the existing one to use the new API instead.
+There may come a time when you need to reset the SCORM 2004 API.
 This is useful when a SCORM object allows retrying after a failure, and you want to track each attempt in a separate CMI object.
-SCORM objects often keep a reference to the original API, which is why this manipulation is needed:
+SCORM objects often keep a reference to the original API, which is why we recommend resetting the API instead of creating a new one:
 
 ```javascript
-var newAPI = new window.simplifyScorm.ScormAPI2004();
-window.API_1484_11.replaceWithAnotherScormAPI(newAPI);
-window.API_1484_11 = newAPI;
+window.API_1484_11.reset();
 ```
+
+Resetting the API brings it back to its original state, including a brand new, untouched CMI object.

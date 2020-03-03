@@ -23,6 +23,7 @@
     _self.processListeners = processListeners;
     _self.throwSCORMError = throwSCORMError;
   }
+  BaseAPI.reset = reset;
 
   /**
    * Logging for all SCORM actions
@@ -176,6 +177,19 @@
         listener.callback(CMIElement, value);
       }
     }
+  }
+
+  /**
+   * Reset the API to its initial state
+   */
+  function reset() {
+    // Internal State
+    this.currentState = constants.STATE_NOT_INITIALIZED;
+    this.lastErrorCode = 0;
+
+    // Utility Functions
+    this.apiLogLevel = constants.LOG_LEVEL_ERROR;
+    this.listenerArray = [];
   }
 
   /**
