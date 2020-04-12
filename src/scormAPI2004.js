@@ -40,7 +40,7 @@
     // Utility Functions
     _self.getLmsErrorMessageDetails = getLmsErrorMessageDetails;
     _self.loadFromJSON = loadFromJSON;
-    _self.replaceWithAnotherScormAPI = replaceWithAnotherScormAPI;
+    _self.reset = reset;
 
     /**
      * @param Empty String
@@ -511,30 +511,14 @@
     }
 
     /**
-     * Replace the whole API with another
+     * Reset the API to its initial state
      */
-    function replaceWithAnotherScormAPI(newAPI) {
-      // API Signature
-      _self.Initialize = newAPI.Initialize;
-      _self.Terminate = newAPI.Terminate;
-      _self.GetValue = newAPI.GetValue;
-      _self.SetValue = newAPI.SetValue;
-      _self.Commit = newAPI.Commit;
-      _self.GetLastError = newAPI.GetLastError;
-      _self.GetErrorString = newAPI.GetErrorString;
-      _self.GetDiagnostic = newAPI.GetDiagnostic;
+    function reset() {
+      BaseAPI.reset.call(_self);
 
       // Data Model
-      _self.cmi = newAPI.cmi;
-      _self.adl = newAPI.adl;
-
-      // Utility Functions
-      _self.getLmsErrorMessageDetails = newAPI.getLmsErrorMessageDetails;
-      _self.loadFromJSON = newAPI.loadFromJSON;
-      _self.replaceWithAnotherScormAPI = newAPI.replaceWithAnotherScormAPI;
-
-      // API itself
-      _self = newAPI; // eslint-disable-line consistent-this
+      _self.cmi = new CMI(_self);
+      _self.adl = new ADL(_self);
     }
 
     return _self;
