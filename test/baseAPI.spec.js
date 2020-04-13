@@ -23,23 +23,7 @@
       console.warn = originalFunctions["console.warn"];
     });
 
-    context("initially", function() {
-      it("should be in NOT_INITIALIZED state", function() {
-        expect(api.currentState).to.equal(constants.STATE_NOT_INITIALIZED);
-      });
-
-      it("should not have a last error code", function() {
-        expect(api.lastErrorCode).to.equal(0);
-      });
-
-      it("should set log level to ERROR", function() {
-        expect(api.apiLogLevel).to.equal(constants.LOG_LEVEL_ERROR);
-      });
-
-      it("should have an empty listener array", function() {
-        expect(api.listenerArray).to.deep.equal([]);
-      });
-    });
+    context("initially", it_behaves_like_a_freshly_initialized_api);
 
     describe("#apiLog", function() {
       var anyCMIElement = "any CMI element";
@@ -220,7 +204,7 @@
       context("given a success", function() {
         it("should clear the last SCORM error", function() {
           api.clearSCORMError(constants.SCORM_TRUE);
-          expect(api.lastErrorCode).to.equal(0);
+          expect(api.lastErrorCode).to.equal("0");
         });
       });
 
@@ -308,7 +292,7 @@
     });
 
     describe("#processListeners", function() {
-      var anyFunctionName = "anyFunctionMame";
+      var anyFunctionName = "anyFunctionName";
       var anyOtherFunctionName = "anyOtherFunctionName";
       var anyCMIElement = "any CMI element";
       var anyOtherCMIElement = "any other CMI element";
@@ -369,6 +353,19 @@
       });
     });
 
+    describe(".reset", function() {
+      beforeEach(function() {
+        api.currentState = constants.STATE_INITIALIZED;
+        api.lastErrorCode = Math.floor(Math.random() * 1000) + 1;
+        api.apiLogLevel = constants.LOG_LEVEL_NONE;
+        api.on("anyFunctionName", sinon.stub());
+
+        window.simplifyScorm.BaseAPI.reset.call(api);
+      });
+
+      it_behaves_like_a_freshly_initialized_api();
+    });
+
     describe("#throwSCORMError", function() {
       var anyErrorNumber = Math.floor(Math.random() * 1000) + 1;
       var anyErrorMessage = "any error message";
@@ -410,5 +407,25 @@
         });
       });
     });
+
+    ////////////////
+
+    function it_behaves_like_a_freshly_initialized_api() {
+      it("should be in NOT_INITIALIZED state", function() {
+        expect(api.currentState).to.equal(constants.STATE_NOT_INITIALIZED);
+      });
+
+      it("should not have a last error code", function() {
+        expect(api.lastErrorCode).to.equal("0");
+      });
+
+      it("should set log level to ERROR", function() {
+        expect(api.apiLogLevel).to.equal(constants.LOG_LEVEL_ERROR);
+      });
+
+      it("should have an empty listener array", function() {
+        expect(api.listenerArray).to.deep.equal([]);
+      });
+    }
   });
 })();
