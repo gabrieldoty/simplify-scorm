@@ -8,7 +8,7 @@
 
     // Internal State
     _self.currentState = constants.STATE_NOT_INITIALIZED;
-    _self.lastErrorCode = 0;
+    _self.lastErrorCode = "0";
 
     // Utility Functions
     _self.apiLog = apiLog;
@@ -56,7 +56,7 @@
    */
   function clearSCORMError(success) {
     if (success !== constants.SCORM_FALSE) {
-      this.lastErrorCode = 0;
+      this.lastErrorCode = "0";
     }
   }
 
@@ -185,7 +185,7 @@
   function reset() {
     // Internal State
     this.currentState = constants.STATE_NOT_INITIALIZED;
-    this.lastErrorCode = 0;
+    this.lastErrorCode = "0";
 
     // Utility Functions
     this.apiLogLevel = constants.LOG_LEVEL_ERROR;
