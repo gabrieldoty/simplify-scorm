@@ -590,7 +590,17 @@
       set session_time(session_time) { this._session_time = session_time; },
 
       _success_status: "unknown", // Allowed values: "passed", "failed", "unknown"
-      get success_status() { return this._success_status; },
+      get success_status() {
+        var success_status = this._success_status;
+
+        if (this.scaled_passing_score && this.score.scaled) {
+          success_status = this.score.scaled >= this.scaled_passing_score ? "passed" : "failed";
+        } else if (this.scaled_passing_score) {
+          success_status = "unknown";
+        }
+
+        return success_status;
+      },
       set success_status(success_status) { this._success_status = success_status; },
 
       _suspend_data: "", // SPM 64000 characters
@@ -832,7 +842,16 @@
       set success_status(success_status) { this._success_status = success_status; },
 
       _completion_status: "unknown", // Allowed values: "completed", "incomplete", "not attempted", "unknown"
-      get completion_status() { return this._completion_status; },
+      get completion_status() {
+        var completion_status = this._completion_status;
+        if (this.completion_threshold && this.progress_measure) {
+          completion_status = this.progress_measure >= this.completion_threshold ? "completed" : "incomplete";
+        } else if (this.completion_threshold) {
+          completion_status = "unknown";
+        }
+
+        return completion_status;
+      },
       set completion_status(completion_status) { this._completion_status = completion_status; },
 
       _progress_measure: "", // Data type: real (10,7). Range: 0.0 to 1.0
