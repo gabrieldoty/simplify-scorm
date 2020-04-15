@@ -937,8 +937,8 @@
   function getSuccessStatus(cmi) {
     var success_status = cmi._success_status;
 
-    if (cmi._scaled_passing_score && cmi.score.scaled) {
-      success_status = cmi.score.scaled >= cmi._scaled_passing_score ? "passed" : "failed";
+    if (cmi._scaled_passing_score && cmi.score._scaled) {
+      success_status = cmi.score._scaled >= cmi._scaled_passing_score ? "passed" : "failed";
     } else if (cmi._scaled_passing_score) {
       success_status = "unknown";
     }
