@@ -922,9 +922,9 @@
   function getCompletionStatus(cmi) {
     var completion_status = cmi._completion_status;
 
-    if (cmi.completion_threshold && cmi.progress_measure) {
-      completion_status = cmi.progress_measure >= cmi.completion_threshold ? "completed" : "incomplete";
-    } else if (cmi.completion_threshold) {
+    if (cmi._completion_threshold && cmi._progress_measure) {
+      completion_status = cmi._progress_measure >= cmi._completion_threshold ? "completed" : "incomplete";
+    } else if (cmi._completion_threshold) {
       completion_status = "unknown";
     }
 
@@ -937,9 +937,9 @@
   function getSuccessStatus(cmi) {
     var success_status = cmi._success_status;
 
-    if (cmi.scaled_passing_score && cmi.score.scaled) {
-      success_status = cmi.score.scaled >= cmi.scaled_passing_score ? "passed" : "failed";
-    } else if (cmi.scaled_passing_score) {
+    if (cmi._scaled_passing_score && cmi.score.scaled) {
+      success_status = cmi.score.scaled >= cmi._scaled_passing_score ? "passed" : "failed";
+    } else if (cmi._scaled_passing_score) {
       success_status = "unknown";
     }
 

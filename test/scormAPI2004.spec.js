@@ -17,56 +17,6 @@
     });
 
     describe("#cmi", function() {
-      describe("success_status", function() {
-        context("when scaled_passing_score is not defined", function() {
-          it("should return _success_status value", function() {
-            expect(api.cmi.success_status).to.equal(api.cmi._success_status);
-          });
-        });
-
-        context("when scaled_passing_score is defined", function() {
-          beforeEach(function() {
-            api.cmi.scaled_passing_score = 0.5;
-          });
-
-          context("when score.scaled is undefined", function() {
-            it("should return unknown", function() {
-              expect(api.cmi.success_status).to.equal("unknown");
-            });
-          });
-
-          context("when score.scaled is greater than scaled_passing_score", function() {
-            beforeEach(function() {
-              api.cmi.score.scaled = 0.6;
-            });
-
-            it("should return passed", function() {
-              expect(api.cmi.success_status).to.equal("passed");
-            });
-          });
-
-          context("when score.scaled is equal to scaled_passing_score", function() {
-            beforeEach(function() {
-              api.cmi.score.scaled = 0.5;
-            });
-
-            it("should return passed", function() {
-              expect(api.cmi.success_status).to.equal("passed");
-            });
-          });
-
-          context("when score.scaled is lesser than scaled_passing_score", function() {
-            beforeEach(function() {
-              api.cmi.score.scaled = 0.4;
-            });
-
-            it("should return failed", function() {
-              expect(api.cmi.success_status).to.equal("failed");
-            });
-          });
-        });
-      });
-
       describe("completion_status", function() {
         context("when completion_threshold is not defined", function() {
           it("should return _completion_status value", function() {
@@ -112,6 +62,56 @@
 
             it("should return incomplete", function() {
               expect(api.cmi.completion_status).to.equal("incomplete");
+            });
+          });
+        });
+      });
+
+      describe("success_status", function() {
+        context("when scaled_passing_score is not defined", function() {
+          it("should return _success_status value", function() {
+            expect(api.cmi.success_status).to.equal(api.cmi._success_status);
+          });
+        });
+
+        context("when scaled_passing_score is defined", function() {
+          beforeEach(function() {
+            api.cmi.scaled_passing_score = 0.5;
+          });
+
+          context("when score.scaled is undefined", function() {
+            it("should return unknown", function() {
+              expect(api.cmi.success_status).to.equal("unknown");
+            });
+          });
+
+          context("when score.scaled is greater than scaled_passing_score", function() {
+            beforeEach(function() {
+              api.cmi.score.scaled = 0.6;
+            });
+
+            it("should return passed", function() {
+              expect(api.cmi.success_status).to.equal("passed");
+            });
+          });
+
+          context("when score.scaled is equal to scaled_passing_score", function() {
+            beforeEach(function() {
+              api.cmi.score.scaled = 0.5;
+            });
+
+            it("should return passed", function() {
+              expect(api.cmi.success_status).to.equal("passed");
+            });
+          });
+
+          context("when score.scaled is lesser than scaled_passing_score", function() {
+            beforeEach(function() {
+              api.cmi.score.scaled = 0.4;
+            });
+
+            it("should return failed", function() {
+              expect(api.cmi.success_status).to.equal("failed");
             });
           });
         });
