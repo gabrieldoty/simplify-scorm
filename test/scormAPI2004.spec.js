@@ -67,55 +67,51 @@
         });
       });
 
-      describe.only("objectives", function() {
-        describe("completion_status", function() {
-          context("when completion_threshold is not defined", function() {
-            it.only("should return _completion_status value", function() {
-              console.log(api.cmi.objectives.completion_status)
-              console.log(api.cmi.objectives)
-              expect(api.cmi.objectives.completion_status).to.equal(api.cmi.objectives._completion_status);
+      describe("completion_status", function() {
+        context("when completion_threshold is not defined", function() {
+          it("should return _completion_status value", function() {
+            expect(api.cmi.completion_status).to.equal(api.cmi._completion_status);
+          });
+        });
+
+        context("when completion_threshold is defined", function() {
+          beforeEach(function() {
+            api.cmi.completion_threshold = 0.5;
+          });
+
+          context("when progress_measure is undefined", function() {
+            it("should return unknown", function() {
+              expect(api.cmi.completion_status).to.equal("unknown");
             });
           });
 
-          context("when completion_threshold is defined", function() {
+          context("when progress_measure is greater than completion_threshold", function() {
             beforeEach(function() {
-              api.cmi.completion_threshold = 0.5;
+              api.cmi.progress_measure = 0.6;
             });
 
-            context("when progress_measure is undefined", function() {
-              it("should return unknown", function() {
-                expect(api.cmi.objectives.completion_status).to.equal("unknown");
-              });
+            it("should return completed", function() {
+              expect(api.cmi.completion_status).to.equal("completed");
+            });
+          });
+
+          context("when progress_measure is equal to completion_threshold", function() {
+            beforeEach(function() {
+              api.cmi.progress_measure = 0.5;
             });
 
-            context("when progress_measure is greater than completion_threshold", function() {
-              beforeEach(function() {
-                api.cmi.progress_measure = 0.6;
-              });
+            it("should return completed", function() {
+              expect(api.cmi.completion_status).to.equal("completed");
+            });
+          });
 
-              it("should return completed", function() {
-                expect(api.cmi.objectives.completion_status).to.equal("completed");
-              });
+          context("when progress_measure is lesser than completion_threshold", function() {
+            beforeEach(function() {
+              api.cmi.progress_measure = 0.4;
             });
 
-            context("when progress_measure is equal to completion_threshold", function() {
-              beforeEach(function() {
-                api.cmi.progress_measure = 0.5;
-              });
-
-              it("should return completed", function() {
-                expect(api.cmi.objectives.completion_status).to.equal("completed");
-              });
-            });
-
-            context("when progress_measure is lesser than completion_threshold", function() {
-              beforeEach(function() {
-                api.cmi.progress_measure = 0.4;
-              });
-
-              it("should return incomplete", function() {
-                expect(api.cmi.objectives.completion_status).to.equal("incomplete");
-              });
+            it("should return incomplete", function() {
+              expect(api.cmi.completion_status).to.equal("incomplete");
             });
           });
         });
