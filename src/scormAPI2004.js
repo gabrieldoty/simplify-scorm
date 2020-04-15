@@ -534,7 +534,7 @@
       set _version(_version) { API.throwSCORMError(404); },
 
       _completion_status: "unknown", // Allowed values: "completed", "incomplete", "not attempted", "unknown"
-      get completion_status() { return this._completion_status; },
+      get completion_status() { return getCompletionStatus(this); },
       set completion_status(completion_status) { this._completion_status = completion_status; },
 
       _completion_threshold: "", // Data type: real (10,7). Range: 0.0 to 1.0
@@ -590,7 +590,7 @@
       set session_time(session_time) { this._session_time = session_time; },
 
       _success_status: "unknown", // Allowed values: "passed", "failed", "unknown"
-      get success_status() { return this._success_status; },
+      get success_status() { return getSuccessStatus(this); },
       set success_status(success_status) { this._success_status = success_status; },
 
       _suspend_data: "", // SPM 64000 characters
@@ -914,5 +914,35 @@
    */
   function adlNavRequestValidJump(_target) {
     return "unknown";
+  }
+
+  /**
+   * Determine the completion_status of a cmi object
+   */
+  function getCompletionStatus(cmi) {
+    var completion_status = cmi._completion_status;
+
+    if (cmi._completion_threshold && cmi._progress_measure) {
+      completion_status = cmi._progress_measure >= cmi._completion_threshold ? "completed" : "incomplete";
+    } else if (cmi._completion_threshold) {
+      completion_status = "unknown";
+    }
+
+    return completion_status;
+  }
+
+  /**
+   * Determine the success_status of a cmi object
+   */
+  function getSuccessStatus(cmi) {
+    var success_status = cmi._success_status;
+
+    if (cmi._scaled_passing_score && cmi.score._scaled) {
+      success_status = cmi.score._scaled >= cmi._scaled_passing_score ? "passed" : "failed";
+    } else if (cmi._scaled_passing_score) {
+      success_status = "unknown";
+    }
+
+    return success_status;
   }
 })();
